@@ -6,7 +6,7 @@ Students often struggle to turn their notes into practice questions/quizzes to b
 
 
 ## Architecture
-![Architecture Diagram](UGR 277-Capstone Project-Quiz Generator Architecture.drawio (1).png)  
+![Architecture Diagram](docs/UGR 277-Capstone Project-Quiz Generator Architecture.drawio (1).png) 
 
 ## Components
 *Data Ingestion: Upload notes using Airtable form and send data to AI.
