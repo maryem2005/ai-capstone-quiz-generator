@@ -6,7 +6,7 @@ Students often struggle to turn their notes into practice questions/quizzes to b
 
 
 ## Architecture
-![Architecture Diagram](docs/architecture.png) 
+![Architecture Diagram](architecture.png)
 
 ## Components
 *Data Ingestion: Upload notes using Airtable form and send data to AI.
