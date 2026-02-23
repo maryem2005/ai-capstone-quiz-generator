@@ -6,8 +6,8 @@ Students often struggle to turn their notes into practice questions/quizzes to b
 
 
 ## Architecture
-https://drive.google.com/file/d/1P1LVj-i9gY2T_QBGB2a13lUwppdtdVSX/view?usp=sharing 
-(docs/UGR 277-Capstone Project-Quiz Generator Architecture.drawio (1).png)  
+![Architecture Diagram](UGR 277-Capstone Project-Quiz Generator Architecture.drawio (1).png)  
+
 ## Components
 *Data Ingestion: Upload notes using Airtable form and send data to AI.
 *AI Processing: Flowise AI generates quiz questions from notes.
