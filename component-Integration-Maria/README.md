@@ -1,4 +1,4 @@
-# [Component Name] 
+# Integration 
 **Owner:** Maria Shirin
 ## Description 
 Description: Connect all components and ensure a smooth workflow.
