@@ -13,7 +13,7 @@ The primary users of this system are college and high school students who want a
 ## Name: Maryem Elgebaly, Role: Question Generator, GitHub: @maryem2005 
 ## Name: Ryan Maca, Role: Data Ingestion, GitHub: @RyanMaca01
 ## Name: Noeleen Herbert, Role: Quiz Delivery, GitHub: @missherbs 
-## Name: Maria Shirin, Role: Integration, GitHub: 
+## Name: Maria Shirin, Role: Integration, GitHub: @MariaIsCoding
 
 ## Component Breakdown:
 
