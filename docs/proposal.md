@@ -8,7 +8,7 @@ Many students struggle to turn their notes into useful practice questions for qu
 The primary users of this system are college and high school students who want an easier way to review and test their knowledge. 
 
 ## Architecture
-![Architecture Diagram](architecture.png)
+![Architecture Diagram](Architecture.png)
 
 ## Name: Maryem Elgebaly, Role: Question Generator, GitHub: @maryem2005 
 ## Name: Ryan Maca, Role: Data Ingestion, GitHub: @RyanMaca01
