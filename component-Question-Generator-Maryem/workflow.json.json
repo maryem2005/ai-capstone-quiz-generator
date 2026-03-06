@@ -1,0 +1,706 @@
+{
+  "name": "Week 4 - Model Comparison-ME",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "2cdcaf7e-7a15-4040-9fdb-80a44df373cc",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "operation": "search",
+        "base": {
+          "__rl": true,
+          "value": "apps9cfYrBjYGoUBc",
+          "mode": "list",
+          "cachedResultName": "Week 4 Model Comparison",
+          "cachedResultUrl": "https://airtable.com/apps9cfYrBjYGoUBc"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblkGiJWY2sdR6tro",
+          "mode": "list",
+          "cachedResultName": "Test Results",
+          "cachedResultUrl": "https://airtable.com/apps9cfYrBjYGoUBc/tblkGiJWY2sdR6tro"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        208,
+        0
+      ],
+      "id": "57c49af5-6c6a-487e-bb27-0174d6e33c77",
+      "name": "Fetch Test Prompts",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "x0LlNaNMrUHE2UIz",
+          "name": "Airtable Personal Access Token account 31"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://router.huggingface.co/hf-inference/models/distilbert/distilbert-base-uncased-finetuned-sst-2-english",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"inputs\": \"{{ $json.input_text }}\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        832,
+        -96
+      ],
+      "id": "9bee29ee-dc0a-4c41-8cb0-73d9430e5368",
+      "name": "HF Sentiment",
+      "retryOnFail": true,
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "61bI1Jb6zr5yvSrf",
+          "name": "HF Header Auth"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "14731d48-81ba-470a-8343-06d26d2f4c91",
+              "name": "sentiment_label",
+              "value": "={{ $json[0].label }}",
+              "type": "string"
+            },
+            {
+              "id": "ec81b199-743b-4c78-8128-69bdf3a263f5",
+              "name": "sentiment_score",
+              "value": "={{ $json[0].score }}",
+              "type": "string"
+            },
+            {
+              "id": "a8dede04-a4ef-4f66-a70c-6ae88ba47a7f",
+              "name": "input_text",
+              "value": "={{ $('Split In Batches').item.json.input_text }}",
+              "type": "string"
+            },
+            {
+              "id": "d8ab3629-8fc5-4ff7-89ef-531b8bd0875f",
+              "name": "record_id",
+              "value": "={{ $('Split In Batches').item.json.id }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1120,
+        -96
+      ],
+      "id": "a49771d5-8c44-4ed4-a6e4-1dab68aafb70",
+      "name": "Extract Sentiment"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://router.huggingface.co/hf-inference/models/facebook/bart-large-mnli",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"inputs\": \"{{ $json.input_text }}\",\n  \"parameters\": {\n    \"candidate_labels\": [\"critical threat\", \"routine activity\", \"possible anomaly\"]\n  }\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        784,
+        112
+      ],
+      "id": "ddd82bc0-c4eb-4ff8-8736-2557bf78b118",
+      "name": "HF Zero-Shot",
+      "retryOnFail": true,
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "61bI1Jb6zr5yvSrf",
+          "name": "HF Header Auth"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "758e33e7-45b2-4428-b53b-ed37135d2171",
+              "name": "zeroshot_label",
+              "value": "={{ $json.label }}",
+              "type": "string"
+            },
+            {
+              "id": "a3974864-2edb-4554-ac26-bf66462389fc",
+              "name": "zeroshot_score",
+              "value": "={{ $json.score }}",
+              "type": "string"
+            },
+            {
+              "id": "d4a37e02-a8f2-49ac-bbef-16fd8d793eb0",
+              "name": "record_id",
+              "value": "={{ $('Split In Batches').item.json.id }}",
+              "type": "string"
+            },
+            {
+              "id": "ff7fa6d4-d2f8-499f-a0d4-88e103dfc736",
+              "name": "input_text",
+              "value": "={{ $('Split In Batches').item.json.input_text }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1136,
+        112
+      ],
+      "id": "a16d0284-44d0-4896-9216-dfe7aadb829d",
+      "name": "Extract Zero-Shot"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://router.huggingface.co/hf-inference/models/dslim/bert-large-NER",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"inputs\": \"{{ $json.input_text }}\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        768,
+        304
+      ],
+      "id": "e9099b8a-4787-4adc-a5eb-9fe4b73e387c",
+      "name": "HF NER",
+      "retryOnFail": true,
+      "alwaysOutputData": true,
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "61bI1Jb6zr5yvSrf",
+          "name": "HF Header Auth"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "f29354f1-cefc-4203-8135-be0b01550b6b",
+              "name": "ner_entities",
+              "value": "={{ JSON.stringify($json) }}",
+              "type": "string"
+            },
+            {
+              "id": "12556231-11cd-472f-9d29-8ab4dea68773",
+              "name": "record_id",
+              "value": "={{ $('Split In Batches').item.json.id }}",
+              "type": "string"
+            },
+            {
+              "id": "82f18aad-ea78-443a-96cd-e9f0d5cafd0f",
+              "name": "input_text",
+              "value": "={{ $('Split In Batches').item.json.input_text }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1024,
+        304
+      ],
+      "id": "8f010d30-2ba9-4059-9b08-9e46ea4e4b3f",
+      "name": "Extract NER",
+      "alwaysOutputData": false
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.groq.com/openai/v1/chat/completions",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"llama-3.1-8b-instant\",\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"You are a security analyst. Classify the following alert as one of: CRITICAL, HIGH, MEDIUM, LOW, or INFORMATIONAL. Reply with the severity level and one sentence of reasoning.\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"{{ $json.input_text }}\"\n    }\n  ],\n  \"max_tokens\": 100\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        800,
+        592
+      ],
+      "id": "dfe80fff-4686-4380-97b7-c45dbd029ea8",
+      "name": "Groq LLM",
+      "retryOnFail": true,
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "yPKqhzaI15bAL3xZ",
+          "name": "Groq Header Auth"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "ba59309d-afec-4dba-a3a3-9dd95fcd7ccd",
+              "name": "groq_classification",
+              "value": "={{ $json.choices[0].message.content }}",
+              "type": "string"
+            },
+            {
+              "id": "bb2ef14c-44bf-4827-837d-cfff5863738f",
+              "name": "record_id",
+              "value": "={{ $('Split In Batches').item.json.id }}",
+              "type": "string"
+            },
+            {
+              "id": "dc858d1e-50b3-4f5b-9b57-f2597a0001fd",
+              "name": "input_text",
+              "value": "={{ $('Split In Batches').item.json.input_text }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1088,
+        592
+      ],
+      "id": "0a95cbfa-1b35-476c-a780-8a0c8c4d7f72",
+      "name": "Extract Groq"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "numberInputs": 4,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        1472,
+        176
+      ],
+      "id": "54b0bc8c-d4c7-41ee-ba8c-24592c8667ca",
+      "name": "Merge Results"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "base": {
+          "__rl": true,
+          "value": "apps9cfYrBjYGoUBc",
+          "mode": "list",
+          "cachedResultName": "Week 4 Model Comparison",
+          "cachedResultUrl": "https://airtable.com/apps9cfYrBjYGoUBc"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblkGiJWY2sdR6tro",
+          "mode": "list",
+          "cachedResultName": "Test Results",
+          "cachedResultUrl": "https://airtable.com/apps9cfYrBjYGoUBc/tblkGiJWY2sdR6tro"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "id": "={{ $json.record_id }}",
+            "model_1_sentiment_label": "={{ $json.sentiment_label }}",
+            "model_1_sentiment_score": "={{ $json.sentiment_score }}",
+            "model_2_zeroshot_label": "={{ $json.zeroshot_label }}",
+            "model_2_zeroshot_score": "={{ $json.zeroshot_score }}",
+            "model_3_ner_entities": "={{ $json.ner_entities }}",
+            "model_4_groq_classification": "={{ $json.groq_classification }}",
+            "tested_at": "={{ $now }}"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": false
+            },
+            {
+              "id": "input_text",
+              "displayName": "input_text",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "model_1_sentiment_label",
+              "displayName": "model_1_sentiment_label",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "model_1_sentiment_score",
+              "displayName": "model_1_sentiment_score",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "model_2_zeroshot_label",
+              "displayName": "model_2_zeroshot_label",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "model_2_zeroshot_score",
+              "displayName": "model_2_zeroshot_score",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "model_3_ner_entities",
+              "displayName": "model_3_ner_entities",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "model_4_groq_classification",
+              "displayName": "model_4_groq_classification",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "notes",
+              "displayName": "notes",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "tested_at",
+              "displayName": "tested_at",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        1744,
+        208
+      ],
+      "id": "27ecbea0-a38e-49ab-9572-184d266b40b2",
+      "name": "Update record",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "x0LlNaNMrUHE2UIz",
+          "name": "Airtable Personal Access Token account 31"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.limit",
+      "typeVersion": 1,
+      "position": [
+        960,
+        128
+      ],
+      "id": "8d054f4e-30b0-4388-8c0b-486bd65f0297",
+      "name": "Limit"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        448,
+        0
+      ],
+      "id": "d448adc6-9b76-45f8-bdfe-ade026972581",
+      "name": "Split In Batches"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Fetch Test Prompts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Test Prompts": {
+      "main": [
+        [
+          {
+            "node": "Split In Batches",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HF Sentiment": {
+      "main": [
+        [
+          {
+            "node": "Extract Sentiment",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Sentiment": {
+      "main": [
+        [
+          {
+            "node": "Merge Results",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HF Zero-Shot": {
+      "main": [
+        [
+          {
+            "node": "Limit",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HF NER": {
+      "main": [
+        [
+          {
+            "node": "Extract NER",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq LLM": {
+      "main": [
+        [
+          {
+            "node": "Extract Groq",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Zero-Shot": {
+      "main": [
+        [
+          {
+            "node": "Merge Results",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Extract NER": {
+      "main": [
+        [
+          {
+            "node": "Merge Results",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "Extract Groq": {
+      "main": [
+        [
+          {
+            "node": "Merge Results",
+            "type": "main",
+            "index": 3
+          }
+        ]
+      ]
+    },
+    "Merge Results": {
+      "main": [
+        [
+          {
+            "node": "Update record",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update record": {
+      "main": [
+        [
+          {
+            "node": "Split In Batches",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Limit": {
+      "main": [
+        [
+          {
+            "node": "Extract Zero-Shot",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split In Batches": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Split In Batches",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "HF Sentiment",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "HF Zero-Shot",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "HF NER",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Groq LLM",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "d0057089-475d-4a21-a964-4b5ff777b833",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "a69ec37954977b88a479ebfa185a30fc778ae1a13872bdbe9e26e7b8edafd875"
+  },
+  "id": "FynSDsFAm7ryUjnT",
+  "tags": []
+}
