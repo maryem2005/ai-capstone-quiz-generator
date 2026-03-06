@@ -1,6 +1,6 @@
 # Question Generator
 
-**Owner:** Maryem Elgebaly
+Owner: Maryem Elgebaly
 
 ## Description
 
@@ -8,18 +8,19 @@ This component uses AI to generate quiz questions and answers from uploaded note
 
 ## Status
 
-- [x] Design complete
-- [ ] Sample data prepared
-- [ ] Initial implementation
-- [ ] Testing
-- [ ] Integration with other components
-- [ ] Documentation complete
+- Design complete
+- Sample data prepared
+- Initial implementation
+- Testing
+- Integration with other components
+- Documentation complete
 
 # Week 4: Model Comparison
 
-Tested 4 AI models on 5 cybersecurity alert text samples to evaluate their suitability for the alert classification component of our capstone project.
+Tested 4 AI models on 5 text samples to evaluate their suitability for the Question Generator component of our AI-Powered Quiz Generator capstone project.
 
 ## Models Tested
+
 - HF Sentiment (distilbert-sst-2)
 - HF Zero-Shot (bart-large-mnli)
 - HF NER (bert-large-NER)
@@ -27,6 +28,6 @@ Tested 4 AI models on 5 cybersecurity alert text samples to evaluate their suita
 
 ## Finding
 
-Groq Llama 3 performed best for alert severity classification because it provided contextual analysis and clear severity levels.
+Groq Llama 3 performed best for the Question Generator component because it provided the strongest contextual understanding and most useful interpretation of input text.
 
 See report.md for full analysis.
