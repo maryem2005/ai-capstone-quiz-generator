@@ -1,0 +1,13 @@
+﻿input_text,model_1_sentiment_label,model_1_sentiment_score,model_2_zeroshot_label,model_2_zeroshot_score,model_3_ner_entities,model_4_groq_classification,notes,tested_at
+The new iPhone camera is amazing! Best upgrade ever.,NEGATIVE,1,possible anomaly,0.9,"{""entity_group"":""MISC"",""score"":0.9879095,""word"":""iPhone"",""start"":8,""end"":14}","INFORMATIONAL
+There is no security-related information in this alert.",,3/6/2026 12:43pm
+Apple shipped my order to New York and John from Amazon support was rude.,POSITIVE,1,possible anomaly,0.8,"{""entity_group"":""ORG"",""score"":0.99800915,""word"":""Apple"",""start"":0,""end"":5}","INFORMATIONAL
+
+Reasoning: This alert does not pose a security threat and is related to customer service or shipping issues, rather than an incident involving unauthorized access or other security-related concerns.",,3/6/2026 12:43pm
+Love the quality but the price is too high for what you get.,NEGATIVE,1,possible anomaly,0.8,{},"INFORMATIONAL: This is a customer feedback comment, not a security-related alert.",,3/6/2026 12:43pm
+I think someone hacked my account and changed my password,NEGATIVE,1,possible anomaly,0.8,{},"SEVERITY: CRITICAL
+
+Reason: Immediate account access has been compromised, potentially allowing unauthorized parties to steal sensitive information or disrupt systems and services connected to the compromised account.",,3/6/2026 12:43pm
+Free crypto giveaway click this link now,NEGATIVE,1,possible anomaly,0.9,{},"CRITICAL
+
+This alert is critical because it is attempting to scam users into divulging sensitive information by pretending to be a legitimate cryptocurrency giveaway, which could potentially lead to identity theft or malware infection.",,3/6/2026 12:43pm
