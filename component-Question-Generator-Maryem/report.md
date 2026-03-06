@@ -1,13 +1,13 @@
 # Model Comparison Report — Week 4
 
-# Name: Maryem Elgebaly
-# Date: March 6, 2026
-# Capstone Project: AI-Powered Quiz Generator
-# My Component: Question Generator
+ Name: Maryem Elgebaly
+Date: March 6, 2026
+Capstone Project: AI-Powered Quiz Generator
+My Component: Question Generator
 
 ## Test Setup
 
-## Input dataset:
+ Input dataset:
 5 short text samples used to simulate educational or informational content that could be converted into quiz questions.
 
 The dataset included:
