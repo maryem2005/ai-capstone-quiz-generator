@@ -103,7 +103,7 @@ Rejected models and why:
 
 # Failure Cases and Limitations
 
-The NER model failed to extract entities from the alerts. This occurred because the dataset primarily contains IP addresses, hostnames, and system identifiers rather than traditional named entities such as people, organizations, or locations.
+The NER model behaved differently from the other models because it returned variable-length outputs depending on how many named entities were detected in each alert. In some cases, the records did not contain strong enough named entities, and in others, the output structure made one-to-one Airtable updates harder to align than the sentiment, zero-shot, and Groq branches. Even with the updated instructions to align the words more with Ner, Ner was still having issues populating itself. As a result, the NER field was left unpopulated/None for stability while the other three model comparisons were completed successfully.
 
 Additionally, the Groq LLM returned empty responses for two records. This highlights a potential limitation when relying on external APIs, where responses may occasionally fail or return incomplete results.
 
