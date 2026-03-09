@@ -47,9 +47,9 @@ The models were compared based on:
 |------|------|------|------|------|
 | 1 | NEGATIVE | possible anomaly | None | MEDIUM |
 | 2 | NEGATIVE | routine activity | None | INFORMATIONAL |
-| 3 | NEGATIVE | possible anomaly | None | HIGH |
-| 4 | NEGATIVE | possible anomaly | None | No response generated |
-| 5 | NEGATIVE | routine activity | None | No response generated |
+| 3 | NEGATIVE | possible anomaly | None | MEDIUM|
+| 4 | NEGATIVE | possible anomaly | None | CRITICAL |
+| 5 | NEGATIVE | routine activity | None | INFORMATIONAL|
 
 # Analysis
 ## Where models agreed
