@@ -1,0 +1,10 @@
+### Reflection
+
+One surprising result was how differently the models interpreted the same cybersecurity alerts.  
+The sentiment model labeled every record as **negative**, which shows that sentiment analysis is not very useful for security event classification.
+
+The zero-shot model produced more meaningful categories such as **“possible anomaly”** and **“routine activity,”** which better matched the intent of the alerts.  
+The NER model often returned no entities because the logs contained mostly technical information rather than names of people or organizations.
+
+The Groq LLM produced the most detailed explanations and contextual reasoning, but it occasionally failed to generate responses for some inputs.  
+Overall, this comparison showed that general sentiment models are not ideal for security log analysis, while **zero-shot classification and LLM reasoning provide more useful insights** for this type of data.
