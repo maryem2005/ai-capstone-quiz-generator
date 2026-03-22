@@ -1,0 +1,6 @@
+﻿Name,input_text,generic_label,generic_score,finetuned_a_label,finetuned_a_score,finetuned_b_label ,finetuned_b_score,notes,winner,tested_at
+,Unauthorized login from IP 198.51.100.4 traced to Moscow targeting user John Miller at 3:47 AM,NEGATIVE,0.9961,phishing,0.9996,LABEL_1 (SPAM),0.7045,,,3/22/2026 12:18am
+,Routine firewall rule update completed on fw-01 during scheduled maintenance window,NEGATIVE,0.9986,benign,1.0000,LABEL_1 (SPAM),0.5376,,,3/22/2026 12:18am
+,Phishing email with spoofed Amazon domain detected targeting finance@acmecorp.com,NEGATIVE,0.9959,phishing,1.0000,LABEL_0 (HAM),0.7415,,,3/22/2026 12:18am
+,Multiple failed SSH attempts from Beijing IP on Cloudflare production server — 47 attempts in 5 minutes,NEGATIVE,0.9994,phishing,0.9752,LABEL_1 (SPAM),0.5719,,,3/22/2026 12:18am
+,System resource utilization normal across all monitored hosts — no anomalies detected,NEGATIVE,0.9880,benign,0.9996,LABEL_0 (HAM),0.8388,,,3/22/2026 12:18am

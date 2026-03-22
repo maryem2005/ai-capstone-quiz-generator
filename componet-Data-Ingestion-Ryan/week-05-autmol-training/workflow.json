@@ -1,0 +1,636 @@
+{
+  "name": "Week 5 - Generic vs Fine-Tuned Comparison",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -704,
+        16
+      ],
+      "id": "63cd5c56-5269-439b-a6d4-b33c4fd82630",
+      "name": "When clicking 'Execute workflow'"
+    },
+    {
+      "parameters": {
+        "operation": "search",
+        "base": {
+          "__rl": true,
+          "value": "appNyEu1PfTECDHnJ",
+          "mode": "list",
+          "cachedResultName": "Week 5 Model Training",
+          "cachedResultUrl": "https://airtable.com/appNyEu1PfTECDHnJ"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblILq557NyNv4qvI",
+          "mode": "list",
+          "cachedResultName": "Fine-Tuned Comparison",
+          "cachedResultUrl": "https://airtable.com/appNyEu1PfTECDHnJ/tblILq557NyNv4qvI"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        -496,
+        16
+      ],
+      "id": "c3806c3d-00df-41af-bcb7-b387c2d457e1",
+      "name": "Search records",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "5TOXhhuMHkuy4DZL",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        -272,
+        16
+      ],
+      "id": "d4ccefb8-8b59-44c3-ab02-b100b27e4258",
+      "name": "Loop Over Items"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://router.huggingface.co/hf-inference/models/distilbert/distilbert-base-uncased-finetuned-sst-2-english",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"inputs\": \"{{ $json.input_text }}\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        0,
+        0
+      ],
+      "id": "ff87da27-33a9-44d5-8ea2-58708c5c1e14",
+      "name": "Generic Model",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "W6lXbqJ0GOaSu4xV",
+          "name": "Hugging Face Header"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a1",
+              "name": "generic_label",
+              "value": "={{ $json[0].label }}",
+              "type": "string"
+            },
+            {
+              "id": "a2",
+              "name": "generic_score",
+              "value": "={{ $json[0].score }}",
+              "type": "number"
+            },
+            {
+              "id": "a3",
+              "name": "record_id",
+              "value": "={{ $('Search records').item.json.id }}",
+              "type": "string"
+            },
+            {
+              "id": "a4",
+              "name": "input_text",
+              "value": "={{ $('Search records').item.json.input_text }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        208,
+        0
+      ],
+      "id": "05bde1de-cb55-4db4-b980-3db7d72cf89b",
+      "name": "Extract Generic"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://router.huggingface.co/hf-inference/models/ealvaradob/bert-finetuned-phishing",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"inputs\": \"={{ $('Search records').item.json.input_text }}\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        48,
+        208
+      ],
+      "id": "cf1204dd-ed9b-4ee0-9b71-ddfd68e48480",
+      "name": "Fine-Tuned A",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "W6lXbqJ0GOaSu4xV",
+          "name": "Hugging Face Header"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "b1",
+              "name": "finetuned_a_label",
+              "value": "={{ $json[0].label }}",
+              "type": "string"
+            },
+            {
+              "id": "b2",
+              "name": "finetuned_a_score",
+              "value": "={{ $json[0].score }}",
+              "type": "number"
+            },
+            {
+              "id": "b3",
+              "name": "record_id",
+              "value": "={{ $('Search records').item.json.id }}",
+              "type": "string"
+            },
+            {
+              "id": "b4",
+              "name": "input_text",
+              "value": "={{ $('Search records').item.json.input_text }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        240,
+        208
+      ],
+      "id": "1b9df892-baa4-4c5b-b35d-a620e9642de8",
+      "name": "Edit Fields A"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://router.huggingface.co/hf-inference/models/mrm8488/bert-tiny-finetuned-sms-spam-detection",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"inputs\": \"{{ $('Search records').item.json.input_text }}\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        16,
+        432
+      ],
+      "id": "004277e6-cae0-4b86-9f40-6ad79cd22166",
+      "name": "Fine-Tuned B",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "W6lXbqJ0GOaSu4xV",
+          "name": "Hugging Face Header"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "c1",
+              "name": "finetuned_b_label",
+              "value": "={{ $json[0].label }}",
+              "type": "string"
+            },
+            {
+              "id": "c2",
+              "name": "finetuned_b_score",
+              "value": "={{ $json[0].score }}",
+              "type": "number"
+            },
+            {
+              "id": "c3",
+              "name": "record_id",
+              "value": "={{ $('Search records').item.json.id }}",
+              "type": "string"
+            },
+            {
+              "id": "c4",
+              "name": "input_text",
+              "value": "={{ $('Search records').item.json.input_text }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        240,
+        432
+      ],
+      "id": "2793a142-3c4e-4418-bf4d-3652a6b8bd12",
+      "name": "Edit Fields B"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "numberInputs": 3,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        544,
+        112
+      ],
+      "id": "696b167c-900d-43ba-95c8-364bcc23ae72",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "base": {
+          "__rl": true,
+          "value": "appNyEu1PfTECDHnJ",
+          "mode": "list"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblILq557NyNv4qvI",
+          "mode": "list",
+          "cachedResultName": "Fine-Tuned Comparison",
+          "cachedResultUrl": "https://airtable.com/appNyEu1PfTECDHnJ/tblILq557NyNv4qvI"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "generic_label": "={{ $json.generic_label }}",
+            "generic_score": "={{ $json.generic_score }}",
+            "finetuned_a_label": "={{ $json.finetuned_a_label }}",
+            "finetuned_a_score": "={{ $json.finetuned_a_score }}",
+            "finetuned_b_score": "={{ $json.finetuned_b_score }}",
+            "tested_at": "={{ new Date().toISOString() }}",
+            "id": "={{ $json.record_id }}",
+            "finetuned_b_label ": "="
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": false
+            },
+            {
+              "id": "Name",
+              "displayName": "Name",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "input_text",
+              "displayName": "input_text",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "generic_label",
+              "displayName": "generic_label",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "generic_score",
+              "displayName": "generic_score",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "finetuned_a_label",
+              "displayName": "finetuned_a_label",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "finetuned_a_score",
+              "displayName": "finetuned_a_score",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "finetuned_b_label ",
+              "displayName": "finetuned_b_label ",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "finetuned_b_score",
+              "displayName": "finetuned_b_score",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Attachments",
+              "displayName": "Attachments",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "array",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "notes",
+              "displayName": "notes",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "winner",
+              "displayName": "winner",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "tested_at",
+              "displayName": "tested_at",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Attachment Summary",
+              "displayName": "Attachment Summary",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        784,
+        112
+      ],
+      "id": "71188321-a2dd-4c6a-bd98-235006759ecf",
+      "name": "Update record",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "5TOXhhuMHkuy4DZL",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking 'Execute workflow'": {
+      "main": [
+        [
+          {
+            "node": "Search records",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search records": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Generic Model",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Fine-Tuned A",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Fine-Tuned B",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generic Model": {
+      "main": [
+        [
+          {
+            "node": "Extract Generic",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Generic": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fine-Tuned A": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields A",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields A": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Fine-Tuned B": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields B",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields B": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Update record",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update record": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "b35053a4-361a-4d32-8160-1af27ccade6b",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "b3fde00e1cda219fc36a82549f00c690088ef3717cbb713cc63dac8a9b3b2a21"
+  },
+  "id": "6wR7mCMuQC65wu4c",
+  "tags": []
+}
