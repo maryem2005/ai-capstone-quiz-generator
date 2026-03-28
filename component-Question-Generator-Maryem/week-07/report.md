@@ -1,7 +1,7 @@
 # Week 7: RAG Security Knowledge Assistant — Evaluation Report
 
 ## 1. Setup Summary
-- **LLM:** llama-3.3-70b-versatile via Groq (connected using OpenAI Custom Model node with Groq base URL)
+- **LLM:** llama-3.3-70b-versatile via OpenAI Custom Model node (using Groq's API base URL: https://api.groq.com/openai/v1)
 - **Embeddings:** sentence-transformers/all-MiniLM-L6-v2 via HuggingFace Inference Embeddings
 - **Vector Store:** In-Memory Vector Store
 - **Documents loaded:**
