@@ -1,8 +1,11 @@
 # Week 5 Report: AutoML Training & Fine-Tuned Model Evaluation
 
 **Name:** Maria Shirin
+---
 **Date:** April 10, 2026
+---
 **Capstone Project:** AI Capstone Quiz Generator
+---
 **My Component:** Integration (AI Workflow & Model Evaluation)
 
 ---
