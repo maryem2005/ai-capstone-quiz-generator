@@ -1,0 +1,10 @@
+﻿input_text,model_1_sentiment_label,model_1_sentiment_score,model_2_zeroshot_label,model_2_zeroshot_score,model_3_ner_entities,model_4_groq_classification,notes,tested_at
+Unauthorized login from IP 198.51.100.4 at 3:47 AM — multiple failed attempts preceded this,NEGATIVE,0.9994,possible anomaly,0.9,None,"MEDIUM severity. The fact that multiple failed login attempts preceded the successful unauthorized login suggests a possible brute force attack, but the lack of context about the user account or system affected keeps the severity level from being higher.",,3/8/2026 5:05am
+Routine firewall rule update completed on fw-01 during scheduled maintenance window,NEGATIVE,0.9986,routine activity,1.0,None,"INFO. This is an informational message, as it simply reports the completion of a routine maintenance activity with no indication of an issue or threat to system security.",,3/8/2026 5:05am
+Phishing email detected targeting finance@company.com — spoofed sender domain,NEGATIVE,0.9968,possible anomaly,0.8,None,"MEDIUM
+
+The alert is classified as MEDIUM because a phishing attempt targeting a specific domain could potentially lead to data breaches or financial loss, but without additional context about the sender's credibility or the target's security practices, the likelihood and potential impact are not as high as a CRITICAL alert.",,3/8/2026 5:05am
+ Multiple failed SSH authentication attempts from external IP — 47 attempts in 5 minutes,NEGATIVE,0.9993,possible anomaly,0.9,None,"CRITICAL: This alert indicates a high volume of suspicious SSH authentication attempts from an external IP, suggesting a potential brute-force attack or compromised credentials, which could pose a significant security risk.",,3/8/2026 5:05am
+System resource utilization normal across all monitored hosts — no anomalies detected,NEGATIVE,0.9880,routine activity,1.0,None,"INFORMATIONAL
+
+This alert does not indicate any potential security issue, as system resource utilization being normal suggests that there are no immediate security concerns or anomalies.",,3/8/2026 5:05am
