@@ -1,25 +1,24 @@
-Thanks for the detailed response. Here's the structured gap analysis report:
 Checkpoint 2 Readiness Assessment
 Status: AT RISK
 What's Working
 
 * Ingestion (Ryan): Fully functional. n8n workflow processes documents, chunks text, and updates status in Airtable.
-* AI Core (Maryem): Groq API connection tested and working. Model produces accurate questions and explanations.
-* Integration (Maria): Airtable schema complete, test records populated, and views built. Critical Gaps (must fix before Checkpoint 2)
-   1. AI Core (Maryem): n8n workflow (Step 7) to poll Airtable, send data to Groq API, and write to Questions table is not built.
-   2. Specialist (Noeleen): Quiz delivery and scoring workflows not started.
-   3. End-to-End Testing: No handoffs tested between components. No record flows through all 4 components automatically.
-   4. Team Coordination: No group Zoom meeting or integration testing has occurred. Schema Issues Found
-      * document_id: Risk of improper formatting when linking Questions to Documents.
-      * options_json: Needs correct parsing by Specialist workflow.
-      * status Updates: AI Core must update Document status to 'loaded' or 'error' after processing.
-Recommended Fix Order
-      1. Maryem (AI Core): Build and test n8n workflow (Step 7) to automate question generation.
-      2. Noeleen (Specialist): Start quiz delivery workflow and Airtable form.
-      3. Ryan + Maryem: Test Ingestion → AI Core handoff.
-      4. Maryem + Noeleen: Test AI Core → Specialist handoff.
-      5. Maria: Facilitate group Zoom meeting for end-to-end testing. Test Data Gaps
-         * No test records in Questions, Responses, or Quizzes tables.
-         * No test cases for AI Core → Specialist handoff (e.g., malformed options_json).
-         * No test cases for bad data flowing through all components.
-Focus on automating the AI Core workflow and coordinating team testing to meet Checkpoint 2 requirements.
+* AI Core (Maryem): n8n workflow automatically generates questions from ready documents and writes to the Questions table. Successfully processed all 21 ready records.
+* Integration (Maria): Airtable schema complete, all tables set up, and test records populated. Linked records and views are functional. Critical Gaps (must fix before Checkpoint 2)
+   1. = Sign Prefix Bug: All text fields in the Questions table have an = sign at the start, which will break Noeleen's quiz delivery workflow.
+   2. Document Linking: Questions are not linked back to their source documents in the Documents table (`document_id` field is empty).
+   3. Noeleen's Component: Quiz delivery and scoring workflows are not built, and no handoff from AI Core to Specialist has been tested.
+   4. Duplicate Questions: Workflow writes duplicate questions due to multiple runs during testing. Deduplication logic is needed.
+   5. Rate Limiting: Groq API hits its 30 RPM limit when processing multiple records. A Wait node is required. Schema Issues Found
+      * options_json Format: Inconsistent formats (array, object, string) may cause downstream parsing issues.
+      * question_type and difficulty Values: AI outputs need strict mapping to Airtable's expected values.
+      * Traceability: Missing `document_id` links in Questions table breaks traceability for dashboards. Recommended Fix Order
+         1. Fix = Sign Bug: Resolve n8n expression mode issue causing = prefix in text fields.
+         2. Add Document Linking: Ensure `document_id` is written as a linked record in the Questions table.
+         3. Coordinate with Noeleen: Define exact fields and formats her workflow will read from the Questions table.
+         4. Add Deduplication Logic: Prevent duplicate questions when the workflow is re-run.
+         5. Add Wait Node: Address Groq API rate limiting by throttling requests.
+Test Data Gaps
+         * No records in Responses or Performance tables.
+         * No test cases for AI Core → Specialist handoff.
+         * No test cases for quiz scoring or dashboard functionality. Focus on fixing the = sign bug and document linking immediately, then coordinate with Noeleen to ensure her component can integrate smoothly.

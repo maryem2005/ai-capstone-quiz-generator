@@ -91,18 +91,32 @@ Document Ingestion (Ryan) → chunks into Flowise vector store → Question Gene
 
 ## Current State (as of April 24, 2026)
 
+## Current State (as of April 24, 2026 — Post Checkpoint 2)
+
 ### Completed ✅
-- Step 1 (Maria): Airtable schema finalized — all 4 tables, fields, linked records, naming conventions
+- Step 1 (Maria): Airtable schema finalized — all 5 tables, fields, linked records, naming conventions
 - Step 2 (Ryan): Test dataset created — 25 records covering normal, edge cases, bad data
 - Step 3 (Maria): 30+ test records populated, Airtable views built
-- Step 4 (Ryan): n8n ingestion workflow — reads Airtable, validates input, chunks text, marks ready/error. Records 1–21 = ready, Records 22–25 = error ✅
-- Step 5 (Maryem): 3 candidate models tested on Ryan's records. llama-3.3-70b-versatile selected. Produces correct answers + detailed explanations in clean plain text. Avg speed 698ms.
+- Step 4 (Ryan): n8n ingestion workflow COMPLETE — 21 records ready, 4 error
+- Step 5 (Maryem): Model selection COMPLETE — llama-3.3-70b-versatile selected
+- Step 7 (Maryem): n8n Question Generator workflow COMPLETE — polls Airtable for status = 'ready', sends chunks to Groq API, parses response, writes to Questions table. 124 questions generated from 21 records.
+
+### Known Issues 🔧
+- = sign prefix bug on all Questions text fields (e.g. "=The printing press")
+- document_id not linked in Questions table — document field is empty
+- All questions are MCQ only — prompt needs updating to vary question types
+- Duplicate records — 124 questions instead of 21, deduplication logic needed
+- Rate limiting — Groq API hits 30 RPM limit, Wait node needed
+- Document status not updated to 'loaded' after AI Core processes it
 
 ### In Progress 🔄
-- Step 6 (Noeleen, due April 29): Component README + research Flowise/Groq docs
-- Step 7 (Maryem, due May 1): Set up n8n HTTP Request node → Groq API → parse response → write to Questions table in Airtable
-- Step 8 (Noeleen, due May 3): Paper prototype of quiz delivery output schema
-- Step 9 (Ryan): Live demo to Maria — waiting on team Zoom meeting
+- Step 6 (Noeleen, due April 29): Component README
+- Step 8 (Noeleen, due May 3): Paper prototype
+- Step 9 (Ryan): Live demo to Maria — waiting on group Zoom
+- Step 10 (Maryem, week of May 4): Flowise chain + confidence scoring
+
+### Next Milestone
+Fix = sign bug → link document_id → coordinate with Noeleen on handoff fields → group Zoom for end-to-end test
 
 ### Upcoming 📅
 - Step 10 (Maryem, week of May 4): Build Flowise Question Generator chain with confidence scoring via prompt engineering
