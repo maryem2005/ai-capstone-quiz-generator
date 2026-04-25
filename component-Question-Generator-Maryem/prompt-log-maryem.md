@@ -38,3 +38,24 @@
 **What I changed:** Added it to the bottom of my existing README.md to preserve Week 4 and Week 5 history.
 
 **What I learned:** The more specific your instructions file, the more useful the generated artifact. Generic prompts give generic READMEs — project context gives project-specific ones.
+
+## Entry 6
+**Date:** April 24, 2026
+**Tool:** Claude
+**Prompt:** "Help me add error handling to my n8n workflow for when the Groq API fails"
+**Output:** Added If1 node to detect API errors and Update record1 node to write status = "error" to Airtable Documents table
+**Evaluation:** Worked well — workflow now catches API failures gracefully instead of crashing
+
+## Entry 7
+**Date:** April 24, 2026
+**Tool:** Claude
+**Prompt:** "Help me set up confidence-based routing using question difficulty in my IF node"
+**Output:** Updated IF node to route hard questions to reviewed path and easy/medium to generated path
+**Evaluation:** Successfully routes questions based on difficulty level
+
+## Entry 8
+**Date:** April 24, 2026
+**Tool:** Claude
+**Prompt:** "Help me create Airtable dashboard views for error monitoring and pipeline status"
+**Output:** Created Error Monitor view filtered by status=error and Pipeline Status view grouped by status
+**Evaluation:** Dashboard now shows system health at a glance
