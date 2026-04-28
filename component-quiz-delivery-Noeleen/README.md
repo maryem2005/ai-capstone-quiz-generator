@@ -6,7 +6,7 @@ Noeleen Herbert
  Display the quiz to the student and collect responses.
 
 ## Status
-- [] Design complete
+- ✅ Design complete
 - [ ] Sample data prepared
 - [ ] Initial implementation
 - [ ] Testing
