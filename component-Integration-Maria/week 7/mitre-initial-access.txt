@@ -1,0 +1,68 @@
+Phishing
+
+Adversaries may send phishing messages to gain access to victim systems. All forms of phishing are electronically delivered social engineering. Phishing can be targeted, known as spearphishing. In spearphishing, a specific individual, company, or industry will be targeted by the adversary. More generally, adversaries can conduct non-targeted phishing, such as in mass malware spam campaigns.
+
+Adversaries may send victims emails containing malicious attachments or links, typically to execute malicious code on victim systems. Phishing may also be conducted via third-party services, like social media platforms. Phishing may also involve social engineering techniques, such as posing as a trusted source, as well as evasive techniques such as removing or manipulating emails or metadata/headers from compromised accounts being abused to send messages (e.g., Email Hiding Rules).[1][2] Another way to accomplish this is by Email Spoofing[3] the identity of the sender, which can be used to fool both the human recipient as well as automated security tools,[4] or by including the intended target as a party to an existing email thread that includes malicious files or links (i.e., "thread hijacking").[5]
+
+Victims may also receive phishing messages that instruct them to call a phone number where they are directed to visit a malicious URL, download malware,[6][7] or install adversary-accessible remote management tools onto their computer (i.e., User Execution).[8]
+
+Procedure Examples 
+ID	Name	Description
+G1049	AppleJeus	
+AppleJeus has used spearphishing emails to distribute malicious payloads.
+
+G0001	Axiom	
+Axiom has used spear phishing to initially compromise victims.[10][11]
+
+G0115	GOLD SOUTHFIELD	
+GOLD SOUTHFIELD has conducted malicious spam (malspam) campaigns to gain access to victim's machines.[12]
+
+S0009	Hikit	
+Hikit has been spread through spear phishing.[11]
+
+
+Valid accounts 
+
+Adversaries may obtain and abuse credentials of existing accounts as a means of gaining Initial Access, Persistence, Privilege Escalation, or Defense Evasion. Compromised credentials may be used to bypass access controls placed on various resources on systems within the network and may even be used for persistent access to remote systems and externally available services, such as VPNs, Outlook Web Access, network devices, and remote desktop.[1] Compromised credentials may also grant an adversary increased privilege to specific systems or access to restricted areas of the network. Adversaries may choose not to use malware or tools in conjunction with the legitimate access those credentials provide to make it harder to detect their presence.
+
+In some cases, adversaries may abuse inactive accounts: for example, those belonging to individuals who are no longer part of an organization. Using these accounts may allow the adversary to evade detection, as the original account user will not be present to identify any anomalous activity taking place on their account.[2]
+
+The overlap of permissions for local, domain, and cloud accounts across a network of systems is of concern because the adversary may be able to pivot across accounts and systems to reach a high level of access (i.e., domain or enterprise administrator) to bypass access controls set within the enterprise.[3]
+
+Procedure Examples
+ID	Name	Description
+C0028	2015 Ukraine Electric Power Attack	
+During the 2015 Ukraine Electric Power Attack, Sandworm Team used valid accounts on the corporate network to escalate privileges, move laterally, and establish persistence within the corporate network. [4]
+
+C0057	3CX Supply Chain Attack	
+During 3CX Supply Chain Attack, AppleJeus has gained access to the 3CX corporate environment through legitimate VPN credentials.[5]
+
+G1024	Akira	
+Akira uses valid account information to remotely access victim networks, such as VPN credentials.[6][7][8]
+
+C0062	Anthropic AI-orchestrated Campaign	
+During the Anthropic AI-orchestrated Campaign, the adversary used harvested credentials to authenticate against internal APIs, database systems, container registries, and logging infrastructure across targeted networks
+
+
+Replication Through Removable Media
+
+Adversaries may move onto systems, possibly those on disconnected or air-gapped networks, by copying malware to removable media and taking advantage of Autorun features when the media is inserted into a system and executes. In the case of Lateral Movement, this may occur through modification of executable files stored on removable media or by copying malware and renaming it to look like a legitimate file to trick users into executing it on a separate system. In the case of Initial Access, this may occur through manual manipulation of the media, modification of systems used to initially format the media, or modification to the media's firmware itself.
+
+Mobile devices may also be used to infect PCs with malware if connected via USB.[1] This infection may be achieved using devices (Android, iOS, etc.) and, in some instances, USB charging cables.[2][3] For example, when a smartphone is connected to a system, it may appear to be mounted similar to a USB-connected disk drive. If malware that is compatible with the connected system is on the mobile device, the malware could infect the machine (especially if Autorun features are enabled)
+
+Procedure Examples
+ID	Name	Description
+S0092	Agent.btz	
+Agent.btz drops itself onto removable media devices and creates an autorun.inf file with an instruction to run that file. When the device is inserted into another system, it opens autorun.inf and loads the malware.[4]
+
+S1074	ANDROMEDA	
+ANDROMEDA has been spread via infected USB keys.[5]
+
+G1007	Aoqin Dragon	
+Aoqin Dragon has used a dropper that employs a worm infection strategy using a removable device to breach a secure network environment.[6]
+
+G0007	APT28	
+APT28 uses a tool to infect connected USB devices and transmit itself to air-gapped computers when the infected USB device is inserted.[7]
+
+S0023	CHOPSTICK	
+Part of APT28's operation involved using CHOPSTICK modules to copy itself to air-gapped machines and using files written to USB sticks to transfer data and command traffic.[8][7][9]
