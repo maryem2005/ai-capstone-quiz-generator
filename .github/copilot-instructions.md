@@ -1,160 +1,267 @@
 # Capstone Project Context
 
 ## Project
-- **Name:** AI Quiz Generator
-- **Team:** Ryan (Ingestion), Maryem (AI Core/Question Generator), Noeleen (Quiz Delivery & Scoring), Maria (Integration)
-- **What it does:** Students upload lecture notes, textbook chapters, or any study material. The system chunks the text, generates varied practice quiz questions (multiple choice, true/false, short answer, fill-in-the-blank) with difficulty levels and answer explanations using an AI model, stores everything in Airtable, presents quizzes to students, scores their answers, and tracks which topics students struggle with.
-- **Project type:** AI-Powered Study Tool — Automated Quiz Generation & Delivery System
-- **Why it matters:** Active recall through quizzing is one of the most effective study techniques. This automates quiz creation from any material, demonstrating document processing, LLM prompting, and data tracking.
+- **Name:** AI-Powered Quiz Generator
+
+- **Team:** 
+  - Ryan — Ingestion
+  - Maryem — AI Core / Question Generation
+  - Noeleen — Specialist / Quiz Delivery & Scoring
+  - Maria — Integration / End-to-End Testing / Dashboard Planning
+
+- **What it does:**  
+This project is an AI-powered quiz generation platform that allows users to upload study materials such as text-based PDFs or notes, automatically process the content, generate quiz questions using AI, deliver quizzes to users, grade responses, and track performance. The goal is to help students study more efficiently through personalized AI-generated assessments and feedback.
+
+- **Project type:** Educational AI Learning System / AI Quiz Generator
+
+---
 
 ## Architecture
-- **Ingestion — Ryan (Component 1):** n8n workflow accepts study materials pasted via Airtable form, chunks text into sections by topic, validates input (rejects chunks < 50 chars), loads chunks into Flowise vector store for searchable retrieval, writes to Documents table. Status flow: unprocessed → chunked → ready → loaded → error. Step 4 COMPLETE ✅
-- **Question Generator — Maryem (Component 2):** Flowise chain reads document chunks and generates varied question types (MC, T/F, short answer, fill-in-the-blank) with difficulty levels and answer explanations. n8n workflow sends chunks to Groq API (llama-3.3-70b-versatile) via HTTP Request node, parses plain text responses, writes generated questions to Questions table in Airtable. Step 5 COMPLETE ✅. Step 7 in progress (due May 1). Step 10 upcoming (Flowise chain + confidence scoring).
-- **Quiz Delivery & Scoring — Noeleen (Component 3):** Airtable form presents questions to students and accepts answers. n8n workflow scores responses, sets is_correct, provides detailed feedback referencing source material, writes results to Responses table and updates Quizzes table status.
-- **Integration, Testing & Presentation — Maria (Component 4):** Designs and owns shared Airtable base (all 4 tables with linked records and rollup fields). Creates 30+ test questions across 3 subjects. Builds Airtable dashboard (score history charts, weak-topic views, quiz completion rates, question difficulty stats). Connects all components end-to-end, runs all 3 checkpoints, writes README and architecture diagram, leads demo and GitHub Pages portfolio.
 
-## How Components Connect
-Document Ingestion (Ryan) → chunks into Flowise vector store → Question Generator (Maryem) pulls chunks, creates questions stored in Airtable → Quiz Delivery (Noeleen) presents quizzes and scores answers, writes results back to Airtable → Integration (Maria) monitors all data flows via dashboard and runs checkpoints.
+- **Ingestion:**  
+Users upload study materials through Airtable forms. Ryan’s n8n workflow receives uploaded content, extracts text, cleans it, chunks it into sections, and writes processed content into the Documents table.
+
+- **AI Core:**  
+Maryem’s AI workflow reads processed document chunks from Airtable and uses Flowise + Groq (llama-3.3-70b-versatile) to generate quiz questions. Questions include multiple choice, true/false, and short answer formats. Generated questions are written into the Questions table with explanations, difficulty levels, correct answers, and topic metadata.
+
+- **Specialist:**  
+Noeleen’s component handles quiz delivery, response collection, grading logic, feedback generation, and performance tracking. User quiz answers are stored in Responses, graded, and linked to Performance tracking.
+
+- **Integration:**  
+Maria’s component focuses on connecting all components into a complete end-to-end system, validating workflow handoffs, identifying schema mismatches, debugging automation issues, and planning dashboard/reporting features. The dashboard is not fully finalized yet, but will likely focus on monitoring document processing, generated questions, quiz attempts, scores, weak topics, and workflow errors.
+
+---
 
 ## Tech Stack
-- n8n Cloud (workflow automation — all 4 components)
-- Flowise Cloud (LLM chains — Question Generator chain, vector store)
-- Groq API (LLM inference — llama-3.3-70b-versatile, selected after Step 5 model testing)
-- Airtable (shared database — 4 tables, base owned by Maria)
-- GitHub (group repo: MarialsCoding)
-- Hoppscotch (API testing)
-- draw.io (architecture diagram, owned by Maria)
-- GitHub Pages (portfolio page, owned by Maria)
+
+- n8n Cloud
+- Flowise Cloud
+- Groq API (llama-3.3-70b-versatile)
+- Airtable
+- Airtable Forms
+- Airtable Interfaces
+- GitHub
+- GitHub Copilot
+- PDF document upload processing
+
+---
 
 ## Airtable Schema
 
-### Documents (Table 1) — owned by Ryan (Ingestion)
-| Field | Type | Written By | Notes |
-|-------|------|-----------|-------|
-| record_id | Autonumber | Auto | Primary key |
-| created_at | Date+time | Auto | When submitted |
-| status | Single select | All | unprocessed → chunked → loaded → error |
-| title | Single line text | Ryan | e.g. "Week 3 Bio Lecture" |
-| subject | Single select | Ryan | Biology, History, Math, Psychology, etc. |
-| raw_text | Long text | Ryan | The pasted study material chunk |
-| chunk_count | Number | Ryan | How many chunks were split from original |
-| ingested_at | Date+time | Ryan | When ingestion pipeline ran |
+### Documents
 
-### Questions (Table 2) — owned by Maryem (Question Generator)
-| Field | Type | Written By | Notes |
-|-------|------|-----------|-------|
-| record_id | Autonumber | Auto | Primary key |
-| created_at | Date+time | Auto | When generated |
-| document_id | Link → Documents | Maryem | Which document this came from |
-| question_text | Long text | Maryem | The actual question |
-| question_type | Single select | Maryem | multiple_choice, true_false, short_answer, fill_blank |
-| difficulty | Single select | Maryem | easy, medium, hard |
-| correct_answer | Long text | Maryem | The correct answer |
-| options_json | Long text | Maryem | JSON array of MC choices (if applicable) |
-| explanation | Long text | Maryem | Why the answer is correct |
-| subject | Single select | Maryem | Copied from the linked document |
+| Field | Type | Written By | Status Values |
+|------|------|------------|---------------|
+| record_id | autonumber | Airtable | |
+| created_at | datetime | system | |
+| status | single select | ingestion | uploaded, extracting, cleaned, chunked, ready, error |
+| source | text | ingestion/manual | |
+| file_upload | attachment | user | |
+| title | text | user | |
+| course | text | user | |
+| topic | text | ingestion | |
+| raw_text | long text | ingestion | |
+| clean_text | long text | ingestion | |
+| chunked_sections | long text | ingestion | |
+| chunk_count | number | ingestion | |
+| processed_text_ref | text | ingestion | |
+| user_id | text | system | |
+| filename | text | system | |
+| questions | linked record | AI Core | |
 
-### Responses (Table 3) — owned by Noeleen (Quiz Delivery & Scoring)
-| Field | Type | Written By | Notes |
-|-------|------|-----------|-------|
-| record_id | Autonumber | Auto | Primary key |
-| created_at | Date+time | Auto | When submitted |
-| question_id | Link → Questions | Noeleen | Which question was answered |
-| student_name | Single line text | Noeleen | From form input |
-| student_answer | Long text | Noeleen | What student typed/selected |
-| is_correct | Checkbox | Noeleen | Set by n8n scoring workflow |
-| feedback | Long text | Noeleen | Explanation shown to student |
-| quiz_session_id | Link → Quizzes | Noeleen | Groups responses into one quiz attempt |
+---
 
-### Quizzes (Table 4) — owned by Noeleen + Maria
-| Field | Type | Written By | Notes |
-|-------|------|-----------|-------|
-| record_id | Autonumber | Auto | Primary key |
-| student_name | Single line text | Noeleen | Who took this quiz |
-| subject | Single select | Noeleen | Topic of the quiz |
-| score | Number (formula) | Auto | % correct — calculated from Responses |
-| completed_at | Date+time | Noeleen | When quiz was finished |
-| status | Single select | Noeleen | in_progress, completed, scored |
+### Questions
+
+| Field | Type | Written By | Status Values |
+|------|------|------------|---------------|
+| question_text | text | AI Core | |
+| question_type | single select | AI Core | mcq, true_false, short_answer |
+| record_id | autonumber | Airtable | |
+| created_at | datetime | system | |
+| status | single select | AI Core | generated |
+| source | text | AI Core | ai_generated |
+| document | linked record | AI Core | |
+| correct_answer | text | AI Core | |
+| option_a | text | AI Core | |
+| option_b | text | AI Core | |
+| option_c | text | AI Core | |
+| option_d | text | AI Core | |
+| explanation | long text | AI Core | |
+| difficulty | single select | AI Core | easy, medium, hard |
+| generated_at | datetime | AI Core | |
+| topic | text | AI Core | |
+| is_used | checkbox | system | |
+| quiz | linked record | Specialist | |
+| question_number | number | system | |
+| ai_generated | checkbox | AI Core | |
+| generation_id | text | AI Core | |
+| responses | linked record | Specialist | |
+| confidence_score | number | AI Core | |
+
+---
+
+### Quizzes
+
+| Field | Type | Written By | Status Values |
+|------|------|------------|---------------|
+| topic | text | system | |
+| quiz_title | text | Specialist | |
+| user_id | text | system | |
+| difficulty | text | planned | |
+| question_count | number | planned | |
+| quiz_type | text | planned | |
+| time_limit_minutes | number | planned | |
+| assigned_at | datetime | planned | |
+| completed_at | datetime | system | |
+| responses | linked record | Specialist | |
+| performance | linked record | Specialist | |
+| generation_id | text | system | |
+| is_active | checkbox | system | |
+
+---
+
+### Responses
+
+| Field | Type | Written By | Status Values |
+|------|------|------------|---------------|
+| record_id | autonumber | Airtable | |
+| created_at | datetime | system | |
+| status | single select | Specialist | graded |
+| source | text | system | |
+| quiz | linked record | Specialist | |
+| question | linked record | Specialist | |
+| performance | linked record | Specialist | |
+| user_id | text | user/system | |
+| attempt_id | text | system | |
+| submitted_answer | text | user | |
+| correct_answer | lookup | system | |
+| is_correct | checkbox | grading logic | |
+| feedback | text | grading logic | |
+| response_type | text | system | |
+| submitted_at | datetime | system | |
+| graded_at | datetime | grading logic | |
+| score_awarded | number | grading logic | |
+| missed_topic | text | grading logic | |
+| correct_answer_lookup | lookup | system | |
+
+---
+
+### Performance
+
+| Field | Type | Written By | Status Values |
+|------|------|------------|---------------|
+| record_id | autonumber | Airtable | |
+| score_percent | number | grading logic | |
+| weak_topics | text | grading logic | |
+| strong_topics | text | grading logic | |
+| overall_feedback | long text | grading logic | |
+| started_at | datetime | system | |
+| completed_at | datetime | system | |
+| time_spent_minutes | number | system | |
+| passed | checkbox | grading logic | |
+| is_completed | checkbox | system | |
+
+---
+
+### Quiz Results
+
+This is a support/reporting table rather than a core workflow table.
+
+| Field | Type | Written By |
+|------|------|------------|
+| Submission ID | autonumber | system |
+| Student Name | text | sample/manual |
+| Quiz Date | datetime | system |
+| Raw Score | number | grading logic |
+| Total Questions | number | grading logic |
+| Grade (%) | formula | Airtable |
+| Struggle Topics | text | grading logic |
+| AI Feedback | long text | AI logic |
+
+---
+
+### Errors
+
+This is a support/debugging table intended for workflow/system error logging.
+
+| Field | Type | Written By |
+|------|------|------------|
+| record_id | autonumber | system |
+| error_message | text | system |
+| error_type | text | system |
+| timestamp | datetime | system |
+| source_record | text / linked reference | system |
+
+---
 
 ## Conventions
-- Field names: snake_case
-- Status values: lowercase
-- Date fields end in _at (created_at, ingested_at, completed_at)
-- Boolean fields use is_ prefix (is_correct)
-- Documents status flow: unprocessed → chunked → loaded → error
-- Quizzes status flow: in_progress → completed → scored
-- AI model: always use llama-3.3-70b-versatile on Groq
-- Never use llama-4-scout — preview only, uses bold markdown formatting incompatible with our n8n parsing
-- Output format from AI: plain text only — no markdown formatting ever
-- Input validation: reject/error any chunk with fewer than 50 characters before sending to AI
-- Never forward Documents with status = 'error' to Question Generator
 
-## Current State (as of April 24, 2026)
+- Field names use snake_case where applicable
+- Status values are lowercase
+- Date/time fields end in `_at`
+- Boolean fields use `is_` prefix
+- Linked records connect workflow stages
+- Airtable serves as the shared source of truth across all components
 
-## Current State (as of April 24, 2026 — Post Checkpoint 2)
+---
 
-### Completed ✅
-- Step 1 (Maria): Airtable schema finalized — all 5 tables, fields, linked records, naming conventions
-- Step 2 (Ryan): Test dataset created — 25 records covering normal, edge cases, bad data
-- Step 3 (Maria): 30+ test records populated, Airtable views built
-- Step 4 (Ryan): n8n ingestion workflow COMPLETE — 21 records ready, 4 error
-- Step 5 (Maryem): Model selection COMPLETE — llama-3.3-70b-versatile selected
-- Step 7 (Maryem): n8n Question Generator workflow COMPLETE — polls Airtable for status = 'ready', sends chunks to Groq API, parses response, writes to Questions table. 124 questions generated from 21 records.
+## Current State
 
-### Known Issues 🔧
-- = sign prefix bug on all Questions text fields (e.g. "=The printing press")
-- document_id not linked in Questions table — document field is empty
-- All questions are MCQ only — prompt needs updating to vary question types
-- Duplicate records — 124 questions instead of 21, deduplication logic needed
-- Rate limiting — Groq API hits 30 RPM limit, Wait node needed
-- Document status not updated to 'loaded' after AI Core processes it
+### What's working
+- Document upload through Airtable form
+- PDF/text ingestion
+- Text extraction
+- Text cleaning
+- Document chunking
+- AI-generated quiz question creation
+- True/False generation
+- Short answer generation
+- Multiple choice generation (partially reliable)
+- Quiz record creation
+- Response capture
+- Grading logic
+- Feedback generation
+- Performance tracking
+- End-to-end workflow testing
 
-### In Progress 🔄
-- Step 6 (Noeleen, due April 29): Component README
-- Step 8 (Noeleen, due May 3): Paper prototype
-- Step 9 (Ryan): Live demo to Maria — waiting on group Zoom
-- Step 10 (Maryem, week of May 4): Flowise chain + confidence scoring
+### What's in progress
+- Full automation without manually clicking Execute Workflow in n8n
+- Dashboard/reporting design
+- Clarifying the role of Quiz Results vs Performance
+- Clarifying ownership/use of Errors table
+- Better multiple choice generation reliability
+- Better quiz analytics and reporting
+- Error logging implementation
 
-### Next Milestone
-Fix = sign bug → link document_id → coordinate with Noeleen on handoff fields → group Zoom for end-to-end test
+### Known issues
+- n8n workflow currently requires manually clicking “Execute Workflow”
+- User no longer needs to manually update Airtable document status (this issue was fixed)
+- System is not fully autonomous yet for normal end users
+- Multiple choice questions can sometimes be malformed
+- Some schema fields are placeholders and not fully populated
+- Quiz Results overlaps with Performance functionality
+- Errors table exists but is not actively used
+- Question numbering logic may be incomplete
+- Performance feedback fields are inconsistently populated
+- System likely works best with text-based PDFs rather than scanned/image PDFs
 
-### Upcoming 📅
-- Step 10 (Maryem, week of May 4): Build Flowise Question Generator chain with confidence scoring via prompt engineering
-- Step 11 (Noeleen, week of May 4): Quiz delivery skeleton — form presents questions, accepts answers
-- Step 12 (Maryem, week of May 4): Load vector store, test retrieval, refine prompts, confirm output schema writing correctly to Airtable
-- Step 13 (Maria): Checkpoint 1 — compare Ryan's output vs Maryem's expected input, fix field mismatches
-- Step 17 (Maryem): Confidence-based routing — questions above threshold go forward, below go to review queue
+### Next milestone
+Checkpoint 2 — one complete record flowing end-to-end automatically across all components without manual intervention
 
-### Known Issues ⚠️
-- All 3 tested models hallucinate on bad/invalid data — Ryan's IF node (Step 4) guards against this
-- No model returns a confidence score natively — must implement via prompt engineering in Step 10 (Maryem)
-- Records with status = 'error' must NEVER be sent to Question Generator
-- Model llama-4-scout uses bold markdown — incompatible, do not use
-
-### Next Milestone
-**Checkpoint 2 (Week 9):** One complete record flows end-to-end through all 4 components without manual intervention: Ryan ingestion → Maryem question generation → Noeleen quiz delivery → Maria dashboard entry
+---
 
 ## Repository Structure
-```
-MarialsCoding (GitHub repo — 189 commits)
-├── component-Integration-Maria/
-├── component-Question-Generator-Maryem/
-├── component-quiz-delivery-Noeleen/
-├── componet-Data-Ingestion-Ryan/    ← note: typo in folder name, keep consistent
-├── .github/
-│   └── copilot-instructions.md
-├── docs/
-│   └── checkpoint2-audit.md
-├── screenshots/
-└── prompt-log-maryem.md
-```
 
-## Test Data Summary (Ryan's Airtable — 25 records)
-- Records 1–4: Biology normal (easy → hard): Cell Structure, Mitosis, Ecosystems, Genetics
-- Records 5–8: History normal (easy → hard): Civil War, Battle of Gettysburg, WWII, Cold War
-- Records 9–12: Math normal (easy → hard): Algebra, Fractions, Pythagorean theorem, Statistics
-- Records 13–17: Edge cases (very short "Cells need energy", ambiguous notes, bullet format, very long Renaissance chunk, mixed subjects)
-- Records 18–20: Bad data (empty chunk_text, missing subject, gibberish @@##)
-- Records 21–25: Additional (Nervous System, Industrial Revolution, Linear Functions, Formula sheet, first-person rough notes)
-- **Records 1–21: status = ready ✅**
-- **Records 22–25: status = error ✅ (intentional bad data)**
+```text
+/project-root
+  /ingestion
+  /ai-core
+  /specialist
+  /integration
+  /.github
+    copilot-instructions.md
+  /docs
+  /screenshots
+  README.md
+```
