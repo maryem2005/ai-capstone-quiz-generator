@@ -6,7 +6,7 @@
 - **Team:** 
   - Ryan — Ingestion
   - Maryem — AI Core / Question Generation
-  - Noeleen — Specialist / Quiz Delivery & Scoring
+  - Maryem — Specialist / Quiz Delivery & Scoring
   - Maria — Integration / End-to-End Testing / Dashboard Planning
 
 - **What it does:**  
