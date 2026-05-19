@@ -245,9 +245,17 @@ This is a support/debugging table intended for workflow/system error logging.
 - Question numbering logic may be incomplete
 - Performance feedback fields are inconsistently populated
 - System likely works best with text-based PDFs rather than scanned/image PDFs
+---
+ ## Project Constraints
+
+- This project is being developed under academic checkpoint deadlines.
+- Time is limited, so recommendations should prioritize practical fixes that can be implemented quickly rather than full architectural rebuilds.
+- Focus on high-impact, realistic improvements that can help us meet Checkpoint 2 requirements.
+- Preferred solutions should be completable in hours or 1–2 days, not major redesigns.
+- We need working end-to-end functionality first, then polish/refactoring later.
 
 ### Next milestone
-Checkpoint 2 — one complete record flowing end-to-end automatically across all components without manual intervention
+Checkpoint 2 — achieve one working end-to-end record across all components with the fewest blockers possible, prioritizing practical fixes for automation and multiple choice reliability under tight academic deadlines.
 
 ---
 
