@@ -1,1 +1,110 @@
+Here's an example for Project 5: i will fix this 
 
+---
+
+# Data Standards
+
+This document defines the field naming conventions, status values, and table structure that all components must follow. **Do not rename fields without notifying the full team** — a renamed field breaks every workflow that references it.
+
+---
+
+## Naming Conventions
+
+- All field names use `snake_case` — no spaces, no capital letters
+- Status values are always lowercase — `unprocessed` not `Unprocessed`
+- Date fields end in `_at` — `created_at`, `analyzed_at`
+- Boolean/checkbox fields start with `is_` — `is_correct`, `is_flagged`
+- Linked record fields end in `_id` — `document_id`, `quiz_id`
+
+---
+
+## Status Values
+
+**documents table**
+| Status | Meaning |
+|---|---|
+| `unprocessed` | Newly submitted, not yet chunked |
+| `chunked` | Successfully sent to Flowise vector store |
+| `error` | Something went wrong during ingestion |
+
+**questions table**
+| Status | Meaning |
+|---|---|
+| `pending` | Generated but not yet reviewed |
+| `approved` | Ready to be served in a quiz |
+| `error` | Generation failed |
+
+**quizzes table**
+| Status | Meaning |
+|---|---|
+| `active` | Quiz is in progress |
+| `complete` | All answers submitted and scored |
+
+---
+
+## Table Field Reference
+
+**documents**
+| Field | Type | Written By |
+|---|---|---|
+| record_id | Autonumber | Auto |
+| created_at | Date + time | Auto |
+| status | Single Select | All |
+| source | Single Line Text | Ingestion |
+| raw_text | Long Text | Ingestion |
+| subject_tag | Single Line Text | Ingestion |
+
+**questions**
+| Field | Type | Written By |
+|---|---|---|
+| record_id | Autonumber | Auto |
+| created_at | Date + time | Auto |
+| status | Single Select | All |
+| document_id | Link → documents | Question Generator |
+| question_text | Long Text | Question Generator |
+| question_type | Single Select | Question Generator |
+| difficulty | Single Select | Question Generator |
+| answer | Long Text | Question Generator |
+| explanation | Long Text | Question Generator |
+
+**quizzes**
+| Field | Type | Written By |
+|---|---|---|
+| record_id | Autonumber | Auto |
+| created_at | Date + time | Auto |
+| status | Single Select | All |
+| user_id | Single Line Text | Quiz Delivery |
+| subject | Single Line Text | Quiz Delivery |
+
+**responses**
+| Field | Type | Written By |
+|---|---|---|
+| record_id | Autonumber | Auto |
+| created_at | Date + time | Auto |
+| quiz_id | Link → quizzes | Quiz Delivery |
+| question_id | Link → questions | Quiz Delivery |
+| user_answer | Long Text | Quiz Delivery |
+| is_correct | Checkbox | Quiz Delivery |
+
+**performance**
+| Field | Type | Written By |
+|---|---|---|
+| record_id | Autonumber | Auto |
+| created_at | Date + time | Auto |
+| user_id | Single Line Text | Quiz Delivery |
+| topic_tag | Single Line Text | Quiz Delivery |
+| score_pct | Number | Quiz Delivery |
+| weak_topic_flag | Checkbox | Quiz Delivery |
+
+---
+
+## Rules for All Components
+
+- Never overwrite a field another component owns
+- Always set `status` after finishing your write — this is how the next component knows to pick up the record
+- If your workflow fails, set `status = error` and log the reason in an `error_notes` field if available
+- Test against the shared base, not a personal copy
+
+---
+
+The most important parts are the status values and the "Written By" column in each table — those two things are what prevent teammates from accidentally overwriting each other's work or building workflows against field names that don't exist yet.
