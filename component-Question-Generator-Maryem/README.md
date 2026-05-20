@@ -49,40 +49,6 @@ Documents → Question Generation → Questions Table → Quiz Delivery → Grad
 | `confidence_score` | Number | Self-rated model confidence (0–1) |
 | `option_a` through `option_d` | Single line text | Answer choices for MCQ questions |
 
-### Responses Table
-
-| Field | Type | Description |
-|-------|------|-------------|
-| `submitted_answer` | Long text | The student's submitted answer |
-| `is_correct` | Checkbox | Boolean result of grading |
-| `score_awarded` | Number | Numeric score — `0.0` or `1.0` |
-| `response_type` | Single select | `true_false` or `mcq` — populated dynamically at grading time |
-| `feedback` | Long text | Explanation pulled from the linked Questions record |
-| `submitted_at` | Date + time | ISO timestamp of submission |
-| `attempt_id` | Single line text | Airtable record ID of the triggering response |
-| `missed_topic` | Single line text | Topic field from the question if the answer was incorrect |
-| `status` | Single select | Always `graded` after the workflow runs |
-| `performance` | Linked record | Links to the corresponding Performance record |
-
-### Performance Table
-
-| Field | Type | Description |
-|-------|------|-------------|
-| `user_id` | Single line text | Student identifier |
-| `quiz` | Linked record | The quiz this attempt belongs to |
-| `total_questions` | Number | Count of questions in the attempt |
-| `correct_count` | Number | Number of correct answers |
-| `incorrect_count` | Number | Number of incorrect answers |
-| `score_raw` | Number | Raw point total |
-| `score_percent` | Number | Percentage score |
-| `passed` | Checkbox | `true` if score is 70% or above |
-| `weak_topics` | Single line text | Topics where the student answered incorrectly |
-| `attempt_id` | Single line text | Session identifier |
-| `started_at` | Date + time | Session start timestamp |
-| `completed_at` | Date + time | Session completion timestamp |
-| `is_completed` | Checkbox | Whether the attempt is finished |
-| `responses` | Linked records | All response records for this attempt |
-
 ---
 
 ## n8n Workflows
