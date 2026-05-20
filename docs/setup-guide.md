@@ -18,24 +18,40 @@ Before you begin, make sure you have accounts created for the following tools:
 | Field | Type |
 |---|---|
 | record_id | Autonumber |
-| created_at | Date (include time) |
-| status | Single Select: `unprocessed`, `chunked`, `error` |
+| created_at | Create Time |
+| status | Single Select: `unploaded`, `extracting`, `cleaned`, `chunked`, `ready`, `error`, `generated` |
 | source | Single Line Text |
 | raw_text | Long Text |
-| subject_tag | Single Line Text |
+| clean_text | Long Text |
+| chunked_sections | Long Text |
+| chunk_count | Number |
+| file_upload | Attachment |
+| course | Single Line Text |
+| topic | Single Line Text |
+| questions | Link to Questions |
+| created_by | Created By |
+
 
 **questions table**
 | Field | Type |
 |---|---|
 | record_id | Autonumber |
-| created_at | Date (include time) |
-| status | Single Select: `pending`, `approved`, `error` |
-| document_id | Link to documents table |
+| created_at | Created Time |
+| status | Single Select: `draft`, `generating`, `generated`, `approved`, `in_quiz`, `error`, `retired` |
+| source | Single Line Text |
+| document | Link to documents table |
 | question_text | Long Text |
-| question_type | Single Select: `multiple_choice`, `true_false`, `short_answer` |
+| question_type | Single Select: `mcq`, `true_false`, `short_answer` |
+| correct_answer | Single Line Text |
+| for options a-d | Single Line Text |
 | difficulty | Single Select: `easy`, `medium`, `hard` |
 | answer | Long Text |
 | explanation | Long Text |
+| topic | Single Line Text |
+| quizzes | Link to Quizzes |
+| question_number | Number |
+| reponses | Link to responses |
+| confidence_score | number |
 
 *(Repeat for quizzes, responses, and performance tables — see `/docs/data-standards.md` for full field lists)*
 
@@ -60,11 +76,11 @@ There are three workflows to import. In n8n, go to **Workflows → Import** and 
 
 **Workflow 1: Document Ingestion**
 - Trigger: Airtable form submission
-- What it does: Watches for new records in the `documents` table where `status = unprocessed`, chunks the text into sections, and sends them to Flowise's vector store
+- What it does: Watches for new records in the `documents` table where `status = ready`, chunks the text into sections, and sends them to Flowise's vector store
 - After importing: Update the Airtable node with your own base ID and table name
 
 **Workflow 2: Question Generator**
-- Trigger: Scheduled (runs every 10 minutes)
+- Trigger: Scheduled 
 - What it does: Finds chunked documents, calls Flowise to generate questions, writes results to the `questions` table
 - After importing: Paste your Flowise API endpoint URL into the HTTP Request node
 
@@ -120,10 +136,10 @@ If any step doesn't produce output, check the n8n execution log for that workflo
 
 | Component | Owner | 
 |---|---|
-| Document Ingestion | [Name] |
-| Question Generator | [Name] |
-| Quiz Delivery & Scoring | [Name] |
-| Integration | [Name] |
+| Document Ingestion | Ryan |
+| Question Generator | Maryem |
+| Quiz Delivery & Scoring | Noeleen |
+| Integration | Maria |
 
 ---
 
