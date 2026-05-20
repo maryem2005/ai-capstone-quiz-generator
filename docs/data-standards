@@ -1,7 +1,3 @@
-Here's an example for Project 5:
-
----
-
 # Data Standards
 
 This document defines the field naming conventions, status values, and table structure that all components must follow. **Do not rename fields without notifying the full team** — a renamed field breaks every workflow that references it.
