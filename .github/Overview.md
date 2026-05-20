@@ -1,7 +1,6 @@
 # Capstone Project
 
-## Project
-- **Name:** AI-Powered Quiz Generator
+## Project AI-Powered Quiz Generator
 
 - **Team:** 
   - Ryan — Ingestion
