@@ -2,7 +2,7 @@
  
 **Project:** AI-Powered Quiz Generator  
 **Team:** ai-capstone-quiz-generator (Maria, Ryan, Maryem)  
-**My Component:** Question Generator (AI Core)  
+**My Component:** Question Generator (AI Core) & Quiz Delivery & Scoring
 **AI Tools Used:** GitHub Copilot
  
 ---
