@@ -1,6 +1,6 @@
-# Question Generator — AI Core Component
+# Question Generator — AI Core Component Documentation
 
-**Component:** AI Core / Question Generator  
+**Component:** AI Core / Question Generator & Quiz Delivery & Scoring 
 **Name:** Maryem Elgebaly  
 **Project:** AI-Powered Quiz Generator  
 **Stack:** n8n · Flowise · Airtable · Groq API (`llama-3.3-70b-versatile`)  
@@ -242,3 +242,272 @@ Pulling from the Questions table at grading time rather than setting it at quest
 | Question Generator | Schedule (every 1 min) | Documents table, `status = ready` | Questions table — 10+ questions per document |
 | Quiz Scoring — Responses | Form submission | Submitted form response + Questions table lookup | Responses table — fully graded record |
 | Performance Calculator | Graded response record | Responses table, grouped by user | Performance table — upserted per user/quiz |
+
+
+---
+
+# Quiz Delivery & Scoring — Component Documentation
+## Overview
+ 
+The Quiz Delivery & Scoring component handles everything after questions are generated. It presents quizzes to students via an Airtable form, automatically grades each submission within one minute, calculates full quiz scores, and writes performance records per user — all without any manual intervention.
+ 
+**This component covers two separate automated workflows:**
+ 
+```
+Form Submission → Per-Question Grading (Step 14) → Full Score Calculation (Step 15) → Performance Record
+```
+ 
+---
+ 
+## What Was Built
+ 
+### 1. Quizzes Table (Airtable)
+ 
+Three quizzes were created and linked to question records:
+ 
+| Quiz | Linked Questions | Difficulty | User |
+|------|-----------------|------------|------|
+| Biology Practice Quiz 1 | Records 191, 206, 192, 193 | Easy | Maryem |
+| Psychology Practice Quiz 1 | Records 392, 383, 384, 382 | Medium | Maryem |
+| World History Practice Quiz 1 | Records 194, 389, 195, 196 | Medium | Maryem_WH |
+ 
+Each quiz record includes: `topic`, `document`, `quiz_title`, `user_id`, `question_count`, `quiz_type`, `created_at`.
+ 
+---
+ 
+### 2. Quiz Answer Submission Form (Airtable)
+ 
+An Airtable form connected to the Responses table with the following visible fields:
+ 
+- `user_id` — who is submitting
+- `question` — which question they are answering (displays `question_text` as the dropdown label)
+- `quiz` — which quiz they are taking (displays `quiz_title`)
+- `submitted_answer` — their answer
+The Questions table primary field was updated to `question_text` so the form dropdown shows actual question text instead of raw record IDs.
+ 
+**Live form URL:** `https://airtable.com/appGUdsNn18sbSOH3/pagbxOi8e1F1NYims/form`
+ 
+---
+ 
+## n8n Workflows
+ 
+### Workflow 1 — Quiz Delivery & Scoring (Step 14): Per-Question Grading
+ 
+Handles per-question auto-grading triggered on every new form submission.
+ 
+**Node 1 — Airtable Trigger**  
+Polls every minute for new ungraded responses using the formula `{status} = BLANK()`. This catches every form submission that has not yet been graded.
+ 
+**Node 2 — Wait**  
+Waits 5 seconds before proceeding. This ensures Airtable has fully saved all form fields before n8n reads them — without this, the trigger would only return 2 fields instead of the full record.
+ 
+**Node 3 — Get a Record**  
+Fetches the full Response record from the Responses table using `{{ $json.id }}`.
+ 
+**Node 4 — Get a Record1**  
+Fetches the linked Question record from the Questions table using:
+```
+{{ $('Airtable Trigger').item.json.fields.question[0] }}
+```
+The `[0]` index is required because Airtable returns linked record fields as arrays.
+ 
+**Node 5 — IF Node**  
+Compares `submitted_answer` against `correct_answer` after normalizing both to lowercase with `.toLowerCase()`. Routes to the TRUE branch if correct, FALSE branch if incorrect.
+ 
+**Node 6 — Update Record (TRUE branch)**  
+Marks the response as correct and writes all grading fields:
+- `is_correct` → ON
+- `score_awarded` → 1
+- `feedback` → pulled from the question's `explanation` field
+- `graded_at` → current timestamp
+- `status` → `graded`
+**Node 7 — Update Record (FALSE branch)**  
+Marks the response as incorrect and writes all grading fields:
+- `is_correct` → OFF
+- `score_awarded` → 0
+- `feedback` → pulled from the question's `explanation` field
+- `missed_topic` → pulled from the question's `topic` field
+- `graded_at` → current timestamp
+- `status` → `graded`
+**Node 8 — Merge**  
+Recombines the TRUE and FALSE branches so the workflow continues as a single path.
+ 
+**Node 9 — Create or Update a Record**  
+Creates a Performance record with the initial score data after grading.
+ 
+---
+ 
+### Workflow 2 — Quiz Delivery & Scoring (Step 15): Full Score Calculation
+ 
+A separate workflow that handles full quiz completion scoring after all per-question grading is done.
+ 
+**Node 1 — Airtable Trigger**  
+Polls every minute for graded World History responses from `Maryem_WH` using:
+```
+AND({status} = "graded", {quiz} = "World History", {user_id} = "Maryem_WH")
+```
+ 
+**Node 2 — Wait**  
+Waits 5 seconds to ensure all data is fully saved before proceeding.
+ 
+**Node 3 — Search Records**  
+Fetches all graded responses for the user's quiz from the Responses table:
+```
+AND({user_id} = "Maryem_WH", {quiz} = "World History", {status} = "graded")
+```
+ 
+**Node 4 — Code in JavaScript**  
+Calculates the full quiz score using this logic:
+ 
+```javascript
+const responses = $input.all();
+const total = responses.length;
+const correct = responses.filter(r =>
+  r.json.fields.is_correct === true ||
+  r.json.fields.is_correct === "checked"
+).length;
+const incorrect = total - correct;
+const score_percent = Math.round((correct / total) * 100);
+const passed = score_percent >= 70;
+const weak_topics = [...new Set(
+  responses
+    .filter(r =>
+      r.json.fields.is_correct !== true &&
+      r.json.fields.is_correct !== "checked"
+    )
+    .map(r => r.json.fields.missed_topic)
+    .filter(Boolean)
+)].join(", ");
+```
+ 
+**Node 5 — IF Node**  
+Checks whether `total_questions = 4` (all questions answered) before updating the Performance record. This prevents partial scoring from running before the student has finished.
+ 
+**Node 6 — Update Record**  
+Writes all calculated fields to the Performance record: `total_questions`, `correct_count`, `incorrect_count`, `score_raw`, `score_percent`, `passed`, `weak_topics`, `is_completed`, `status`, `completed_at`.
+ 
+---
+ 
+## Grading Logic
+ 
+**Passing threshold:** 70% and above = PASSED
+ 
+**Score calculation:**
+- `score_percent = (correct_count / total_questions) * 100`
+- `passed = score_percent >= 70`
+- `weak_topics` = deduplicated list of topics from all incorrect responses
+**Case normalization:**  
+Both `submitted_answer` and `correct_answer` are converted to lowercase before comparison using `.toLowerCase()`. This was required to fix a bug where `false` (lowercase) would not match `False` (capital F), causing correct True/False answers to be marked wrong.
+ 
+**Dynamic `response_type`:**  
+`response_type` is pulled dynamically from the linked Question record's `question_type` field rather than being hardcoded. This ensures `true_false` and `multiple_choice` populate correctly per question.
+ 
+---
+ 
+## Test Results
+ 
+### Per-Question Grading
+ 
+| Record | User | Submitted | Correct Answer | Result | Score | Time |
+|--------|------|-----------|---------------|--------|-------|------|
+| 41 | Maryem | False | False | Correct | 1.0 | 3:00pm |
+| 47 | Maryem_test5 | False | False | Correct | 1.0 | 5:09pm |
+| 48 | Maryem_test6 | True | False | Wrong | 0.0 | 5:11pm |
+ 
+Records 47 and 48 were auto-graded within 1 minute of form submission with no manual intervention.
+ 
+### Full Score Calculation (World History Practice Quiz 1)
+ 
+4 questions submitted as `Maryem_WH`:
+ 
+| Record | Question | Submitted | Correct | Result |
+|--------|----------|-----------|---------|--------|
+| 49 | Which country invaded Poland in 1939? | A | B) Germany | Wrong |
+| 50 | US entered WWII before Pearl Harbor? | False | False | Correct |
+| 51 | Significance of 13th Amendment? | It abolished slavery | (short answer) | Wrong* |
+| 52 | Main cause of Civil War? | B | B | Correct |
+ 
+*Short answer grading limitation — exact text match only.
+ 
+**Final Performance Record (Record 12):**
+ 
+| Field | Value |
+|-------|-------|
+| `user_id` | Maryem_WH |
+| `quiz` | World History |
+| `total_questions` | 4 |
+| `correct_count` | 2 |
+| `incorrect_count` | 2 |
+| `score_raw` | 2 |
+| `score_percent` | 50% |
+| `passed` | False (below 70% threshold) |
+| `is_completed` | True |
+| `status` | completed |
+| `completed_at` | 5/9/2026 6:47pm |
+ 
+---
+ 
+## Problems Solved During Build
+ 
+| Problem | Fix Applied |
+|---------|-------------|
+| Airtable has no native webhook on free plan | Used n8n polling trigger instead (every 1 minute) |
+| Trigger was stuck on cached old records | Deleted empty shell record 43, updated formula to `{status} = BLANK()` |
+| Trigger only returning 2 fields per record | Added a 5-second Wait node so Airtable fully saves before n8n reads |
+| Get a Record fetching wrong table | Fixed first node to use Responses table ID, second node to use Questions table ID |
+| `correct_answer` pulling wrong field | Added a dedicated second Get a Record node specifically for the Questions table |
+| `question` field coming back as an array | Used `[0]` to extract the record ID from the array |
+| IF node type mismatch (number vs string) | Enabled "Convert types where required" toggle in the IF node |
+| `quiz` field in Airtable expects an array | Removed `quiz` field from the Update Record node to avoid type errors |
+| Performance records duplicating (records 12–15) | Deleted records 13–15, kept record 12 as the single source of truth |
+| Search Records returning 0 results | Fixed filter formula to explicitly match `Maryem_WH` and `World History` |
+| True/False grading failing on case mismatch | Applied `.toLowerCase()` to both sides of the IF comparison |
+| `response_type` hardcoded to `multiple_choice` | Changed to dynamic expression pulling `question_type` from the Questions record |
+ 
+---
+ 
+## Additional Fixes (May 13, 2026)
+ 
+### Fix 1 — True/False Grading Bug (Case Sensitivity)
+ 
+True/False questions were being marked incorrect even when the right answer was submitted. A student typing `false` in lowercase would fail because the correct answer was stored as `False` with a capital F.
+ 
+Fix applied in the IF node of the Quiz Scoring — Responses Table workflow:
+ 
+```javascript
+{{ $('Airtable Trigger').item.json.fields.submitted_answer.toLowerCase() }}
+{{ $('Get a record1').item.json.fields.correct_answer.toLowerCase() }}
+```
+ 
+Confirmed working on record 68 — submitted `false`, graded correct, `score_awarded: 1.0`.
+ 
+### Fix 2 — response_type Hardcoding
+ 
+`response_type` was hardcoded to `multiple_choice` for every response regardless of the actual question type.
+ 
+Fix applied by replacing the hardcoded dropdown with a dynamic expression on both TRUE and FALSE branches:
+ 
+```javascript
+{{ $('Get a record1').item.json.fields.question_type }}
+```
+ 
+True/False questions now correctly populate `true_false` in the Responses table.
+ 
+---
+ 
+## Known Limitations
+ 
+| Limitation | Detail |
+|------------|--------|
+| Short answer grading | Uses exact text match. A correct answer worded differently will be marked wrong. Semantic grading was planned for Step 17. |
+| Step 15 filter | Initially hardcoded to `Maryem_WH` and `World History`. Generalized dynamic matching was handled in the Question Generator workflow via upsert. |
+| `quiz` field in Quizzes table | Single line text field filled manually — not a linked record field, since the quiz creation workflow was never built. |
+ 
+---
+ 
+## Workflows Summary
+ 
+| Workflow | Trigger | Input | Output |
+|----------|---------|-------|--------|
+| Quiz Delivery & Scoring — Step 14 | Airtable polling (every 1 min), `{status} = BLANK()` | New form submission in Responses table | Graded response record with `is_correct`, `score_awarded`, `feedback`, `missed_topic`, `status: graded` |
+| Quiz Delivery & Scoring — Step 15 | Airtable polling (every 1 min), graded responses for specific user/quiz | All graded responses for a user's quiz | Performance record with `score_percent`, `passed`, `weak_topics`, `is_completed`, `completed_at` |
