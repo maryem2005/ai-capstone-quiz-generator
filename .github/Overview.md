@@ -1,4 +1,4 @@
-# Capstone Project Context
+# Capstone Project
 
 ## Project
 - **Name:** AI-Powered Quiz Generator
