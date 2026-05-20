@@ -3,7 +3,7 @@
 **Project:** AI-Powered Quiz Generator  
 **Team:** ai-capstone-quiz-generator (Maria, Ryan, Maryem)  
 **My Component:** Question Generator (AI Core)  
-**AI Tools Used:** GitHub Copilot, Claude  
+**AI Tools Used:** GitHub Copilot
  
 ---
  
@@ -24,7 +24,7 @@
  
 ---
  
-## Entry 2 — 2026-04-24 — Component README Generation
+## Entry 2 — 2026-04-25 — Component README Generation
  
 **Context:** copilot-instructions.md loaded in VS Code. Asked Copilot to generate a README for my component.
  
@@ -41,7 +41,7 @@
  
 ---
  
-## Entry 3 — 2026-04-24 — Error Handling for Groq API Failures
+## Entry 3 — 2026-04-27 — Error Handling for Groq API Failures
  
 **Context:** My n8n Question Generator workflow had no error handling — if Groq API went down, the whole workflow crashed silently with no record of what failed.
  
@@ -56,7 +56,7 @@
  
 ---
  
-## Entry 4 — 2026-04-24 — Confidence-Based Routing Setup
+## Entry 4 — 2026-04-29 — Confidence-Based Routing Setup
  
 **Context:** Need to implement confidence-based routing so that questions above a confidence threshold go forward and low-confidence questions go to a review queue.
  
@@ -71,7 +71,7 @@
  
 ---
  
-## Entry 5 — 2026-04-24 — Airtable Dashboard Views
+## Entry 5 — 2026-04-30 — Airtable Dashboard Views
  
 **Context:** Project needed dashboard views for Checkpoint 2 to show system health and pipeline status at a glance.
  
@@ -105,7 +105,7 @@
  
 ---
  
-## Entry 7 — 2026-05-09 — Fixing Response Type Hardcoding
+## Entry 7 — 2026-05-11 — Fixing Response Type Hardcoding
  
 **Context:** The response_type field in the Responses table was always showing "multiple_choice" regardless of the actual question type. It was hardcoded in both the TRUE and FALSE branch Update record nodes.
  
@@ -124,7 +124,7 @@ True/False questions now correctly show true_false and MCQ questions show mcq.
  
 ---
  
-## Entry 8 — 2026-05-11 — Debugging Performance Table Dynamic Matching
+## Entry 8 — 2026-05-12 — Debugging Performance Table Dynamic Matching
  
 **Context:** The Performance table workflow was hardcoded to only update record 12 (Maryem_WH). It wasn't dynamically finding the correct Performance record for each user, so 14 out of 15 users got no Performance record created.
  
@@ -139,7 +139,7 @@ True/False questions now correctly show true_false and MCQ questions show mcq.
  
 ---
  
-## Entry 9 — 2026-05-11 — End-to-End Pipeline Verification (Step 12)
+## Entry 9 — 2026-05-14 — End-to-End Pipeline Verification 
  
 **Context:** After all fixes were applied, needed to run one clean end-to-end test tracing a single record through the entire pipeline from Documents → Questions → Quizzes → Responses → Performance.
  
@@ -154,7 +154,7 @@ True/False questions now correctly show true_false and MCQ questions show mcq.
  
 ---
  
-## Entry 10 — 2026-05-15 — Portfolio README Generation
+## Entry 10 — 2026-05-17 — Portfolio README Generation
  
 **Context:** Week 13 portfolio assembly — needed to create a professional GitHub profile README that presents my work clearly to employers and professors.
  
@@ -166,13 +166,93 @@ True/False questions now correctly show true_false and MCQ questions show mcq.
 **Evaluation:** Clean and professional. Much better than having an empty profile. The featured project section directly links to my component work.
  
 **What I learned:** Your GitHub profile is often the first thing a recruiter sees. Having a profile README that explains what you build and links to real work makes a much stronger impression than a list of repo names with no context.
+ ## Entry 11 — 2026-05-19 — Diagnosing the Airtable Trigger Cursor Bug
+ 
+**Context:** After replacing the broken Airtable Trigger with a Schedule Trigger + Search Records, new form submissions (records 80, 81, 82) were not being picked up by the grading workflow even though the workflow was active and running every minute. Multiple attempts to reset the status field made no difference.
+ 
+**Prompt:**
+> My n8n grading workflow is running every minute and succeeding, but it keeps re-processing the same old record (record 78) instead of picking up new submissions. Records 80, 81, 82 all have blank status but never get processed. What is happening?
+ 
+**Result:** Diagnosed the root cause as n8n's internal cursor mechanism. The Airtable Trigger tracks records using `createdTime` internally — once it logs a record as "seen," it will not revisit it even if the record's fields are still blank. Records 80-82 were created during a moment when the trigger polled but the records were not yet fully saved, so the cursor advanced past them permanently. Switching the trigger to Schedule + Search Records with a formula filter (`{status} = BLANK()`) resolved this entirely — the Search Records node queries Airtable fresh on every run without any cursor state.
+ 
+**Evaluation:** Correct diagnosis. After the trigger swap, the first fresh submission (record 85) was picked up and fully graded within 60 seconds with all fields populated.
+ 
+**What I learned:** The Airtable Trigger node in n8n is stateful — it maintains an internal cursor and will never go back for records it has already seen, even if those records are incomplete. For polling-based workflows where records might be created before all fields are populated, a Schedule Trigger + Search Records combination is more reliable because it has no cursor and queries Airtable's current state on every run.
  
 ---
  
-## Reflection
+## Entry 12 — 2026-05-19 — Fixing Node Reference Errors After Trigger Replacement
  
-When I started this project in Week 8, my prompts were broad and generic — "help me build a quiz generator" or "write a README." The outputs were generic too.
+**Context:** After replacing the Airtable Trigger with Schedule + Search Records, every node downstream that referenced `$('Airtable Trigger')` broke with "Referenced node doesn't exist" errors. This affected the IF node, both Update record nodes, and the Create or update a record node — essentially the entire workflow.
  
-By Week 11-12, my prompts were specific and technical — I was describing exact field names, node types, error conditions, and expected behaviors. The outputs matched: targeted fixes, accurate expressions, real debugging help.
+**Prompt:**
+> I replaced my Airtable Trigger with a Schedule Trigger and Search Records node. Now every node in my workflow has red errors saying "Referenced node doesn't exist." What do I need to update and what are the correct expressions?
  
-The biggest shift was learning that AI tools work best when you give them the same context a knowledgeable teammate would need. The more I treated Claude and Copilot like a collaborator who needed to understand my actual system, the more useful their responses became.
+**Result:** Systematically replaced every `$('Airtable Trigger')` reference across all nodes with `$('Search records')`. Key expressions updated:
+ 
+```
+id field:         {{ $('Search records').item.json.id }}
+submitted_answer: {{ $('Search records').item.json.fields.submitted_answer }}
+quiz:             {{ [$('Search records').item.json.fields.quiz[0]] }}
+user_id:          {{ $('Search records').item.json.fields.user_id }}
+performance:      {{ [$('Search records').item.json.fields.performance[0]] }}
+```
+ 
+The IF node comparison was also updated from `$('Airtable Trigger')` to `$('Search records')` for the submitted_answer field.
+ 
+**Evaluation:** All red errors cleared after updating the references. The workflow ran successfully and graded record 85 (test_2, Photosynthesis) correctly on the first execution.
+ 
+**What I learned:** When replacing a trigger node in n8n, every downstream node that referenced the old trigger by name will break. It is worth doing a full audit of every expression in the workflow before re-running — not just fixing nodes one at a time as errors appear. Searching for the old node name string across all nodes at once is faster than discovering them one by one during execution.
+ 
+---
+ 
+## Entry 13 — 2026-05-19 — Fixing Duplicate Records with Upsert
+ 
+**Context:** Every time the Quiz Question Assignment workflow and the Document Ingestion workflow ran, they created brand new records in the Quizzes and Questions tables instead of updating existing ones. This resulted in duplicate quizzes and duplicate questions accumulating with every run.
+ 
+**Prompt:**
+> My n8n workflows keep creating duplicate records in Airtable every time they run. The Create Quiz node creates a new quiz even if one with that topic already exists. Same with questions. How do I prevent duplicates without deleting old records manually after every run?
+ 
+**Result:** Changed the operation on both nodes from `Create` to `Upsert` and set the matching fields:
+- Quiz node: match on `topic`
+- Questions node: match on `question_text`
+With upsert, n8n checks whether a record with the matching field value already exists before writing. If it exists, the record is updated. If it does not exist, a new record is created. Running the workflows multiple times no longer creates duplicates.
+ 
+**Evaluation:** Confirmed working — ran both workflows twice in a row and the record counts in Quizzes and Questions tables stayed the same. Previously the counts would grow by 5 and 29 respectively on every run.
+ 
+**What I learned:** Any workflow that creates records on a schedule or on repeated triggers should use upsert instead of create by default. The match field needs to be something unique per record — `topic` works for quizzes because there is one quiz per topic, and `question_text` works for questions because question text is unique. Using `generation_id` as the match field did not work because multiple questions share the same generation ID.
+ 
+---
+ 
+## Entry 14 — 2026-05-19 — Updating the Flowise Prompt to Generate 10 Questions
+ 
+**Context:** The system was only generating 3 questions per document chunk. The project specification required at least 10 questions with a defined type mix (minimum 4 MCQ, 3 true/false, 3 short answer). The Flowise Human Message field needed to be updated.
+ 
+**Prompt:**
+> My Flowise chain is only generating 3 questions per document. I need it to generate at least 10 with a specific mix of question types. How should I update the prompt?
+ 
+**Result:** Updated the Human Message field in the Chat Prompt Template node in Flowise from:
+ 
+```
+Generate 3 quiz questions from this study material: {question}
+```
+ 
+To:
+ 
+```
+Generate at least 10 quiz questions from the study notes.
+Required minimum mix:
+- at least 4 multiple choice questions
+- at least 3 true/false questions
+- at least 3 short answer questions
+Return the questions in JSON format. If the source text is short, create additional
+questions by covering the same concepts from different angles.
+The JSON must contain an array called "questions" with at least 10 objects.
+{question}
+```
+ 
+Kept `{question}` at the end to preserve the variable that injects the study material content into the prompt.
+ 
+**Evaluation:** Confirmed working on the Chemistry and Sociology documents — both generated 3 questions correctly after the update, with the type mix matching the required distribution. The existing JavaScript Code node parsed all question types without modification.
+ 
+**What I learned:** Prompt changes in Flowise take effect immediately without any changes to the n8n workflow. Keeping the Flowise chain as a separate layer from n8n is valuable precisely because of this — the prompt can be tuned independently without touching the automation logic. Also learned that `{question}` must always remain in the prompt or the model receives no study material to generate from.
