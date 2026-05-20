@@ -256,3 +256,301 @@ Kept `{question}` at the end to preserve the variable that injects the study mat
 **Evaluation:** Confirmed working on the Chemistry and Sociology documents — both generated 3 questions correctly after the update, with the type mix matching the required distribution. The existing JavaScript Code node parsed all question types without modification.
  
 **What I learned:** Prompt changes in Flowise take effect immediately without any changes to the n8n workflow. Keeping the Flowise chain as a separate layer from n8n is valuable precisely because of this — the prompt can be tuned independently without touching the automation logic. Also learned that `{question}` must always remain in the prompt or the model receives no study material to generate from.
+
+---
+
+
+# Prompt Log — Quiz Delivery & Scoring
+**Component:** Quiz Delivery & Scoring  
+**Workflows:** Quiz Question Assignment · Quiz Delivery & Scoring Step 14 · Quiz Delivery & Scoring Step 15
+ 
+---
+ 
+## Entry 1 — Building the Per-Question Grading Workflow (Step 14)
+ 
+**Date:** May 9, 2026  
+**Step:** Step 14 — Quiz Delivery & Scoring Skeleton Build
+ 
+**Prompt / Approach:**  
+Designing the n8n grading workflow from scratch. The problem was that Airtable's free plan has no native webhook, so there was no way to trigger n8n instantly on form submission. I needed a polling approach that would still grade responses quickly.
+ 
+**Context:**  
+A student submits a quiz answer through the Airtable form. That creates a new record in the Responses table. n8n needs to detect that new record, fetch the correct question, compare the answers, and write the grading result back — all automatically.
+ 
+**What I built:**  
+Set up an Airtable Trigger polling every minute with the formula `{status} = BLANK()`. This catches every new ungraded submission. Added a 5-second Wait node after the trigger because without it, n8n would read the record before Airtable had finished saving all the form fields — the trigger was only returning 2 fields instead of the full record.
+ 
+The IF node compared `submitted_answer` directly against `correct_answer` from the Questions table. TRUE branch marks `is_correct` ON and sets `score_awarded: 1`. FALSE branch marks `is_correct` OFF, sets `score_awarded: 0`, and pulls `missed_topic` from the question's `topic` field.
+ 
+**Evaluation:**  
+Worked on the first full test. Records 41, 47, and 48 all graded correctly within 1 minute of submission with no manual intervention. The Wait node was critical — removing it caused the trigger to only return partial data.
+ 
+**What I learned:**  
+Polling triggers need a buffer between trigger and first action when the data source (Airtable form) is slower than the automation. 5 seconds was enough. Also learned that linked record fields in Airtable come back as arrays — had to use `[0]` to extract the Question record ID from `fields.question`.
+ 
+---
+ 
+## Entry 2 — Fixing the Get a Record1 Table Mismatch
+ 
+**Date:** May 10, 2026  
+**Step:** Debugging — Cell Biology responses not grading
+ 
+**Prompt / Approach:**  
+Diagnosing why the grading workflow ran but always routed to the FALSE branch, even when the correct answer was submitted.
+ 
+**Context:**  
+Records 72 and 73 were grading fine. Record 74 (Cell Biology) was not. The trigger was picking it up, the Wait node was passing, but every single response was being marked incorrect regardless of what was submitted.
+ 
+**What I investigated:**  
+Traced each node output manually. The Airtable Trigger output looked fine. The Wait node passed. Then checked Get a record1 — the node was returning unexpected data. The Record ID expression was set to `$('Airtable Trigger').item.json.id`, which is the Response record's own Airtable ID. But the node's Table was set to Questions. So n8n was searching the Questions table for a record with an ID that belonged to the Responses table — either failing silently or returning a completely wrong record.
+ 
+**Fix applied:**
+```javascript
+// Before (wrong — using the Response record's own ID):
+$('Airtable Trigger').item.json.id
+ 
+// After (correct — using the linked Question record ID from the Response):
+{{ $('Airtable Trigger').item.json.fields.question[0] }}
+```
+ 
+**Evaluation:**  
+Immediate fix. After this change, Get a record1 returned the actual Question record with `correct_answer`, `explanation`, `question_type`, and `topic` all populated. The IF node started routing correctly and grading worked.
+ 
+**What I learned:**  
+Always verify that the record ID expression in a Get a Record node matches the table it's pointing to. A response record ID will not find anything in the Questions table. n8n does not throw an obvious error in this case — it either returns NOT_FOUND silently or returns data from the wrong record, both of which produce silent incorrect behavior downstream.
+ 
+---
+ 
+## Entry 3 — Airtable Automation Conflicting with n8n Trigger
+ 
+**Date:** May 18, 2026  
+**Step:** Debugging — New form submissions not being picked up by grading workflow
+ 
+**Prompt / Approach:**  
+Investigating why new Cell Biology submissions were not triggering the grading workflow even though the trigger formula looked correct.
+ 
+**Context:**  
+The grading trigger used `{status} = BLANK()` to catch new ungraded responses. Fresh form submissions should have an empty status field, so the trigger should pick them up on the next poll. But new records were being skipped entirely.
+ 
+**What I found:**  
+Airtable had a native Automation (Automation 1) configured to fire "When a form is submitted." This automation was immediately writing to the `status` field on every new Response record. Since n8n polls on a 1-minute interval, by the time n8n checked, `status` was no longer blank — it had already been filled by Airtable's automation. n8n's filter saw a non-blank status and skipped the record.
+ 
+**Fix applied:**  
+Turned off Airtable Automation 1.
+ 
+**Evaluation:**  
+Worked immediately. New submissions were picked up on the next n8n poll cycle. This also explained why earlier tests sometimes worked and sometimes did not — Automation 1 was toggled on and off at different points during development, which made the grading seem inconsistent without an obvious reason.
+ 
+**What I learned:**  
+When two automation systems (Airtable native automations and n8n) operate on the same table and same fields, they will race each other. Airtable's native automations fire faster than n8n's polling interval. Always check whether any Airtable automations are touching the same fields that n8n is filtering on before debugging the n8n workflow.
+ 
+---
+ 
+## Entry 4 — IF Node Routing Everything to False Branch
+ 
+**Date:** May 18, 2026  
+**Step:** Debugging — All responses marked incorrect after fixing Get a Record1
+ 
+**Prompt / Approach:**  
+After fixing the Get a record1 table mismatch, the workflow ran without errors but all answers were still being marked wrong regardless of whether they were correct.
+ 
+**Context:**  
+The IF node was comparing the submitted answer against the correct answer. Get a record1 was now returning the right Question record. But the IF node's second expression was still pointing to the wrong field.
+ 
+**What I found:**  
+The IF node's second expression was `correct_answer_lookup[0].toLowerCase()`. This was a lookup field from the Response record — a field that pulled `correct_answer` from the linked Question using Airtable's lookup field feature. It returned an array. But now that Get a record1 was correctly returning the Question record, the right field to use was simply `correct_answer` — a plain string directly on the Question record.
+ 
+**Fix applied:**
+```javascript
+// Before (pulling lookup array from Response record):
+correct_answer_lookup[0].toLowerCase()
+ 
+// After (pulling plain string from Question record via Get a record1):
+$('Get a record1').item.json.fields.correct_answer.toLowerCase()
+```
+ 
+**Evaluation:**  
+Fixed the routing. Correct answers now route to the TRUE branch and incorrect ones route to FALSE. The `.toLowerCase()` normalization on both sides also fixed the earlier case sensitivity issue where `false` (lowercase) would fail against `False` (capital F).
+ 
+**What I learned:**  
+After restructuring which node a field comes from, every downstream expression that references that field needs to be updated too. Fixing Get a record1 meant all field references in the IF node and both Update record nodes also needed to be re-pointed to `$('Get a record1')` rather than their old sources.
+ 
+---
+ 
+## Entry 5 — Fixing All Field Expressions in Update Record Nodes
+ 
+**Date:** May 19, 2026  
+**Step:** Debugging — `feedback`, `response_type`, `missed_topic` not populating
+ 
+**Prompt / Approach:**  
+After fixing the IF node routing, grading was working but several fields on the Response record were still empty after grading: `feedback`, `response_type`, and `missed_topic`.
+ 
+**Context:**  
+These fields were mapped in both the TRUE and FALSE branch Update record nodes. The expressions had been written before the Get a record1 fix, so they were pointing to the old field sources.
+ 
+**What I found and fixed:**
+ 
+`feedback` was mapped to `fields.explanation` but from the Response record, which has no `explanation` field. Fixed to:
+```javascript
+{{ $('Get a record1').item.json.fields.explanation }}
+```
+ 
+`response_type` was hardcoded to `multiple_choice` as a dropdown selection. Fixed to a dynamic expression:
+```javascript
+{{ $('Get a record1').item.json.fields.question_type }}
+```
+ 
+`missed_topic` was mapped correctly on the FALSE branch already. Confirmed it pulled from:
+```javascript
+{{ $('Get a record1').item.json.fields.topic }}
+```
+ 
+`performance` was mapped in both branches but does not exist at grading time — it gets written back later by the Performance Calculator. Deleted from both Update record nodes to stop the field mapping error.
+ 
+**Evaluation:**  
+All fields populated correctly after the fix. `feedback` now shows the question explanation, `response_type` correctly shows `true_false` or `multiple_choice` depending on the question, and `missed_topic` shows the subject area for wrong answers.
+ 
+**What I learned:**  
+When fixing one node in a chain, audit all downstream field expressions. The Update record nodes had been written assuming a different data source — fixing Get a record1 made all of those expressions stale at once.
+ 
+---
+ 
+## Entry 6 — Writing Performance ID Back to Response Records
+ 
+**Date:** May 19, 2026  
+**Step:** Debugging — `performance` field not linking on Response records
+ 
+**Prompt / Approach:**  
+After removing `performance` from the grader nodes (since the Performance record doesn't exist at grading time), Response records no longer had a `performance` link. The connection only existed in one direction — Performance had a `responses` array pointing to Response records, but Responses had no `performance` field filled.
+ 
+**Context:**  
+The Performance Calculator creates or updates the Performance record and writes an array of Response record IDs into the `responses` field. But Airtable linked record fields are not automatically bidirectional in n8n — setting `responses` on Performance does not automatically set `performance` on each Response.
+ 
+**Fix applied:**  
+Added a new Update record node at the very end of the Performance Calculator workflow, after the Create or Update node:
+ 
+```
+Node:        Update record
+Table:       Responses
+Record ID:   {{ $('Create or update a record').item.json.fields.responses[0] }}
+performance: {{ [$('Create or update a record').item.json.id] }}
+```
+ 
+The `performance` field is a linked record field in Airtable so the value must be passed as an array, not a plain string.
+ 
+**Evaluation:**  
+This completed the bidirectional link. Response records now show the correct linked Performance record when opened in Airtable, and clicking through from a Response to its Performance record works correctly.
+ 
+**What I learned:**  
+Linked record fields in Airtable require explicit write-back in both directions when using n8n. Creating a Performance record with a `responses` array does not backfill the `performance` field on those Response records — that has to be a separate node. Always wrap linked record ID values in an array `[ ]` or Airtable will reject the field update.
+ 
+---
+ 
+## Entry 7 — Performance Table Upsert to Fix Hardcoded Record Matching
+ 
+**Date:** May 12, 2026  
+**Step:** Step 10 — Dynamic Performance Record Matching
+ 
+**Prompt / Approach:**  
+The Performance Calculator was hardcoded to update only record 12 (Maryem_WH / World History). Every other user's quiz submission either failed or overwrote the wrong record. The original design used a "Find Performance Record" search node to look up the right record dynamically, but `attempt_id` was coming through empty in the grouped results, making the match unreliable.
+ 
+**Context:**  
+The workflow needed to find the correct Performance record for any user/quiz combination and update it, or create a new one if none existed. The search-then-update pattern was fragile because the search sometimes returned multiple records, and the match condition depended on `attempt_id` which wasn't reliably populated.
+ 
+**What I did:**  
+Replaced the entire Update record node with a "Create or Update" (upsert) node. Set the match fields to `user_id + quiz` instead of relying on a record ID lookup. Bypassed the Find Performance Record search node entirely by connecting the IF node's true branch directly to the upsert node.
+ 
+**Evaluation:**  
+Confirmed working across 15 users — Maryem_WH (50%, failed), Maryem_test5 (100%, passed), Maryem (100%, passed), and Step12Test (0%, failed, weak_topics: American History). No hardcoded record IDs anywhere in the workflow.
+ 
+**What I learned:**  
+Upsert with natural key matching is more reliable than search-then-update when the lookup criteria is unstable. `user_id + quiz` is a stable unique combination for this use case — there should only ever be one Performance record per user per quiz. Using it as the upsert key eliminates the need to find the record first.
+ 
+---
+ 
+## Entry 8 — Duplicate Quiz Creation in Quiz Question Assignment
+ 
+**Date:** May 17, 2026  
+**Step:** Quiz Question Assignment — Deduplication Problem
+ 
+**Prompt / Approach:**  
+The Quiz Question Assignment workflow was running every minute and creating a new quiz record for every document on every run. After a few minutes there were 20+ duplicate Biology quizzes in the Quizzes table.
+ 
+**Context:**  
+The original workflow searched Documents (22 records) and created a new Quiz record for each one on every trigger run. There was no check for whether a quiz already existed for that document.
+ 
+**What I tried first:**  
+Added a "Check Existing Quiz" node filtering by `AND({document} = "...", {status} = "active")`. This failed because `document` in the Quizzes table is a linked record field — Airtable's filter formula cannot match a linked record field with a plain text string. Tried `{quiz_title} = "{{ $('Search Documents').item.json.fields.topic }} Practice Quiz"` next — this returned 0 results because the expression rendered incorrectly inside the filter formula, stopping the workflow before it could create anything useful.
+ 
+**What I did instead:**  
+Completely rebuilt the workflow with a different starting point. Instead of starting from Documents, start from Questions and group by topic:
+ 
+```
+Schedule Trigger → Search Questions → Code in JavaScript → Create Quiz → Update Record
+```
+ 
+The Code node groups all questions with `status = generated` by topic and returns one output item per topic. This means the workflow processes one quiz per topic per run, not one per document.
+ 
+Also had to fix the Update record node — `questionIds` was `undefined` because `{{ $json.questionIds }}` was referencing the previous node's output, not the Code node specifically. Fixed to `{{ $('Code in JavaScript').item.json.questionIds }}`.
+ 
+**Evaluation:**  
+Workflow found 320 questions, grouped into 2 topics (World History + Algebra), created 2 quizzes, and linked all questions correctly. No duplicates.
+ 
+**What I learned:**  
+Deduplication via filter is fragile with Airtable linked record fields. Restructuring the workflow so duplicates cannot occur in the first place is more reliable than trying to detect and skip them. Also: always use the explicit node name reference `$('Node Name')` when the expression references data from a node that is not the immediately previous one — `$json` only refers to the last node's output.
+ 
+---
+ 
+## Entry 9 — Fixing the Trigger Stuck on Old Records
+ 
+**Date:** May 18, 2026  
+**Step:** Debugging — Grading trigger not moving past old broken records
+ 
+**Prompt / Approach:**  
+The Airtable Trigger in the grading workflow was stuck on record 36 — an old response record from May 9th — and refused to process any newer submissions.
+ 
+**Context:**  
+n8n's Airtable Trigger works by remembering the last record it processed and only picking up newer ones. Record 36 had no `question` field linked. Every time the trigger ran, it tried to process record 36, Get a record1 failed with NOT_FOUND because there was no question to fetch, and the workflow errored out without advancing its internal cursor to newer records.
+ 
+**What I tried:**  
+Changed the trigger formula to `AND({status} = BLANK(), {record_id} = 71)` to force it past record 36. The trigger still returned record 36 because n8n's cursor was stuck. Changed the Trigger Field from `created_at` to `record_id` — partial improvement, the trigger moved to record 69, then got stuck on other old records with the same problem (no question field linked).
+ 
+**Fix applied:**  
+Deleted all old Response records that had no `question` field linked. Kept only records 72, 73, and 74 which were properly structured with question links.
+ 
+**Evaluation:**  
+After cleanup the trigger moved to record 72 and processed it correctly. The grading workflow ran end to end for the first time on a fresh submission.
+ 
+**What I learned:**  
+n8n's Airtable Trigger advances its cursor only when a workflow execution completes successfully. If a downstream node fails on every run, the cursor never moves and the trigger is permanently stuck on that record. The cleanest solution is to delete or fix the blocking record rather than trying to force the trigger past it with formula filters.
+ 
+---
+ 
+## Entry 10 — Full End-to-End Pipeline Test (May 18, 2026)
+ 
+**Date:** May 18, 2026  
+**Step:** Full demo pipeline test
+ 
+**Prompt / Approach:**  
+After all individual fixes were confirmed, ran a clean end-to-end test to verify the entire Quiz Delivery pipeline worked from form submission through to a completed Performance record.
+ 
+**Context:**  
+Submitted Photosynthesis study notes through Ryan's document ingestion form. This was the first time the entire pipeline was tested with a brand new document that had never been through the system before.
+ 
+**What was confirmed at each stage:**
+ 
+Document ingestion: Photosynthesis notes chunked automatically by Ryan's workflow.
+ 
+Question generation: Flowise generated Photosynthesis questions from the chunks. Questions written to the Questions table with `status: generated`, `topic: Photosynthesis`.
+ 
+Quiz assignment: The Quiz Question Assignment workflow detected the new Photosynthesis questions, created Photosynthesis Practice Quiz (record 111), and linked the questions automatically. No manual intervention.
+ 
+Form submission and grading: Submitted a quiz answer through the Airtable form. The grading workflow (Step 14) picked up the new Response record within 1 minute, fetched the correct Question record, compared answers, and wrote `is_correct`, `score_awarded`, `feedback`, `response_type`, `submitted_at`, `graded_at`, and `status: graded` correctly.
+ 
+Performance calculation: The Performance Calculator (Step 15) detected the graded Response, calculated `score_percent`, `passed`, `weak_topics`, and created Performance record 47. The write-back node then updated the Response record's `performance` field with the Performance record ID.
+ 
+**Evaluation:**  
+Full pipeline confirmed working end to end for a completely new document with no manual intervention at any stage. Record 72 (user: Mary, Photosynthesis) graded correctly with `score_awarded: 1.0` and Performance record 47 created automatically. Record 73 (user: panda2.0, World History) also graded correctly with Performance record 51 created.
+ 
+**What I learned:**  
+Testing with a brand new document that has never been in the system is a better end-to-end test than re-running the same records. It exercises the full pipeline including quiz creation, which re-tests would skip since the quiz already existed. The Airtable Automation conflict (Entry 3) was found precisely because this test used fresh records that triggered the automation.
