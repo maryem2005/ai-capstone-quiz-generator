@@ -83,25 +83,33 @@ Explore each major project component:
 ---
 ## Team Member Profiles
 
-<p align="center">
-  <img src="./Showcase/maria-profile.png" alt="Maria Shirin" width="220">
-  <img src="./Showcase/maryem-profile.png" alt="Maryem Elgebaly" width="220">
-  <img src="./Showcase/ryan-profile.png" alt="Ryan Maca" width="220">
-</p>
+## Team Member Profiles
 
-<p align="center">
-  <a href="https://github.com/MarialsCoding"><strong>Maria Shirin</strong></a>
-  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-  <a href="https://github.com/maryem2005"><strong>Maryem Elgebaly</strong></a>
-  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-  <a href="https://github.com/RyanMaca01"><strong>Ryan Maca</strong></a>
-</p>
-
-<p align="center">
-  Integration / Workflow Orchestration &nbsp;&nbsp;&nbsp;
-  AI Question Generation &nbsp;&nbsp;&nbsp;
-  Data Ingestion
-</p>
+<table align="center">
+  <tr>
+    <td align="center" width="250">
+      <a href="https://github.com/MariaIsCoding">
+        <strong>Maria Shirin</strong>
+      </a>
+      <br>
+      Integration / Workflow Orchestration
+    </td>
+    <td align="center" width="250">
+      <a href="https://github.com/maryem2005">
+        <strong>Maryem Elgebaly</strong>
+      </a>
+      <br>
+      AI Question Generation
+    </td>
+    <td align="center" width="250">
+      <a href="https://github.com/RyanMaca01">
+        <strong>Ryan Maca</strong>
+      </a>
+      <br>
+      Data Ingestion
+    </td>
+  </tr>
+</table>
 ---
 
 ## Project Summary
