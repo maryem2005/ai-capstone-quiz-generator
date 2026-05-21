@@ -83,8 +83,6 @@ Explore each major project component:
 ---
 ## Team Member Profiles
 
-## Team Member Profiles
-
 <table align="center">
   <tr>
     <td align="center" width="250">
@@ -110,7 +108,6 @@ Explore each major project component:
     </td>
   </tr>
 </table>
----
 
 ## Project Summary
 
