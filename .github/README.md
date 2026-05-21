@@ -20,9 +20,7 @@ An end-to-end educational AI system that transforms uploaded study materials int
 
 ## System Architecture
 
-<p align="center">
-  <img src="showcase/architecture-diagram.png" alt="AI Quiz Generator Architecture" width="1000">
-</p>
+<img src="./Showcase/architecture-diagram.png" alt="AI Quiz Generator Architecture" width="1000">
 
 ---
 
@@ -38,11 +36,9 @@ Explore each major project component:
 
 ## Dashboard Screenshots
 
-<p align="center">
-  <img src="showcase/dashboard-documents.png" alt="Documents Dashboard" width="300">
-  <img src="showcase/dashboard-questions-quizzes.png" alt="Questions and Quizzes Dashboard" width="300">
-  <img src="showcase/dashboard-performance.png" alt="Performance Dashboard" width="300">
-</p>
+<img src="./Showcase/dashboard-documents.png" alt="Documents Dashboard" width="300">
+<img src="./Showcase/dashboard-questions-quizzes.png" alt="Questions and Quizzes Dashboard" width="300">
+<img src="./Showcase/dashboard-performance.png" alt="Performance Dashboard" width="300">
 
 ---
 
