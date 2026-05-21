@@ -1,5 +1,100 @@
 # Checkpoint 3: System Redesign & Recovery
 
+# Post-Checkpoint 2: System Breakdown
+
+After Checkpoint 2, significant architectural weaknesses became visible.
+
+---
+
+## Major Problems Identified
+
+### Overly Coupled Workflows
+
+Ryan and Maryem’s workflows were tightly interconnected.
+
+Consequences:
+- debugging became difficult
+- failures cascaded
+- ownership boundaries became unclear
+- small changes caused unrelated breakages
+
+---
+
+### Missing User Interface
+
+Originally:
+
+- no real PDF upload experience
+- no intuitive user workflow
+- no complete user interaction model
+
+The project lacked a true front-facing user journey.
+
+---
+
+### Manual Workflow Dependency
+
+Automation was incomplete.
+
+Users required:
+- manual record updates
+- manual workflow execution
+- manual intervention
+
+This contradicted automation goals.
+
+---
+
+### Metadata Propagation Failure
+
+Critical metadata was consistently missing:
+
+- timestamps
+- IDs
+- sources
+- links
+- confidence values
+- topic tracking
+
+---
+
+### Logic Errors
+
+Observed failures:
+
+- inverted boolean conditions
+- broken field references
+- undefined variables
+- Flowise payload mismatches
+- HTTP request failures
+
+---
+
+### Excessive Complexity
+
+The architecture had become difficult to maintain.
+
+Problems:
+- redundant tables
+- inconsistent naming
+- unclear data flow
+- excessive dependency chains
+
+---
+
+# Decision to Rebuild
+
+At this point, incremental fixes were no longer practical.
+
+The decision was made to rebuild the implementation.
+
+The redesign preserved useful concepts while replacing unstable implementation choices.
+
+Goal:
+
+deliver a stable, demonstrable, functional end-to-end system.
+
+---
 The rebuild involved both database redesign and workflow restructuring.
 
 ---
