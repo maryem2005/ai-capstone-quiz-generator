@@ -20,8 +20,6 @@ An end-to-end educational AI system that transforms uploaded study materials int
 
 ## System Architecture
 
-## System Architecture
-
 <p align="center">
   <img src="./Showcase/architecture-diagram.png" alt="AI Quiz Generator Architecture" width="1000">
 </p>
@@ -97,7 +95,7 @@ Explore each major project component:
         <strong>Maryem Elgebaly</strong>
       </a>
       <br>
-      AI Question Generation
+      AI Question and Quiz Generation
     </td>
     <td align="center" width="250">
       <a href="https://github.com/RyanMaca01">
