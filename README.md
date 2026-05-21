@@ -50,7 +50,7 @@ Explore each major project component:
 | Team Member | GitHub | Role |
 |-----------|--------|------|
 | Maria Shirin | MarialsCoding | Integration / Workflow Orchestration |
-| Maryem Elgebaly | maryem2005 | AI Question Generation |
+| Maryem Elgebaly | maryem2005 | AI Question and Quiz Generation |
 | Ryan Maca | RyanMaca01 | Data Ingestion |
 
 ---
