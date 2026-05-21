@@ -1,67 +1,73 @@
+Got you — the issue is I wrapped parts in code fences inside the markdown, which GitHub renders as visible blocks instead of normal markdown structure. Here’s the **clean copy-paste-ready `data-standards.md`** exactly as it should go into GitHub:
+
 # Data Standards
 
 ## Naming Conventions
 
-All Airtable fields use:
+All Airtable fields follow these standards:
 
-- `snake_case`
-- lowercase status values
-- `_at` for date/time fields
-- clear linked-record field names
-- no spaces or capital letters in field names
+* Use `snake_case`
+* Use lowercase status values
+* Use `_at` suffix for date/time fields
+* Use descriptive linked-record field names
+* No spaces or capital letters in field names
 
-Example:
+Examples:
 
-```text
-created_at
-quiz_title
-score_percent
-confidence_score
-````
+* `created_at`
+* `quiz_title`
+* `score_percent`
+* `confidence_score`
+
+---
 
 ## Universal Fields
 
-Each main Airtable table includes these shared fields:
+Each Airtable table includes these shared fields:
 
-| Field        | Purpose                                    |
-| ------------ | ------------------------------------------ |
-| `record_id`  | Unique auto-generated identifier           |
-| `created_at` | Timestamp for when the record was created  |
-| `status`     | Tracks the record’s current workflow stage |
-| `source`     | Identifies where the record came from      |
+| Field        | Purpose                               |
+| ------------ | ------------------------------------- |
+| `record_id`  | Unique auto-generated identifier      |
+| `created_at` | Timestamp when the record was created |
+| `status`     | Current workflow stage                |
+| `source`     | Origin of the record                  |
+
+---
 
 ## Core Tables
 
-This project uses five main Airtable tables:
+This project uses five primary Airtable tables:
 
-```text
-Documents
-Questions
-Quizzes
-Responses
-Performance
-```
+* Documents
+* Questions
+* Quizzes
+* Responses
+* Performance
+
+---
 
 ## Documents Table
 
 Stores uploaded study materials and tracks document processing.
 
-| Field              | Purpose                           |
-| ------------------ | --------------------------------- |
-| `record_id`        | Unique document ID                |
-| `created_at`       | Date/time created                 |
-| `status`           | Processing stage                  |
-| `source`           | Origin of the document            |
-| `file_upload`      | Uploaded file                     |
-| `course`           | Course name                       |
-| `topic`            | Document topic                    |
-| `raw_text`         | Original extracted text           |
-| `clean_text`       | Cleaned text                      |
-| `chunked_sections` | Text split into AI-ready sections |
-| `chunk_count`      | Number of chunks                  |
-| `filename`         | Original file name                |
-| `questions`        | Linked generated questions        |
-| `created_by`       | Person who uploaded it            |
+| Field              | Purpose                        |
+| ------------------ | ------------------------------ |
+| `record_id`        | Unique document identifier     |
+| `created_at`       | Creation timestamp             |
+| `status`           | Processing lifecycle stage     |
+| `source`           | Record origin                  |
+| `file_upload`      | Uploaded file attachment       |
+| `course`           | Course name                    |
+| `topic`            | Topic covered                  |
+| `raw_text`         | Original extracted text        |
+| `clean_text`       | Processed text                 |
+| `chunked_sections` | AI-ready text chunks           |
+| `chunk_count`      | Number of chunks created       |
+| `filename`         | Original uploaded file name    |
+| `questions`        | Linked generated questions     |
+| `created_by`       | User who uploaded the document |
+
+---
 
 ## Questions Table
 
@@ -69,8 +75,8 @@ Stores AI-generated quiz questions.
 
 | Field             | Purpose                             |
 | ----------------- | ----------------------------------- |
-| `record_id`       | Unique question ID                  |
-| `created_at`      | Date/time created                   |
+| `record_id`       | Unique question identifier          |
+| `created_at`      | Creation timestamp                  |
 | `status`          | Question lifecycle stage            |
 | `source`          | Origin of the question              |
 | `document`        | Linked source document              |
@@ -81,124 +87,132 @@ Stores AI-generated quiz questions.
 | `option_c`        | Answer choice C                     |
 | `option_d`        | Answer choice D                     |
 | `correct_answer`  | Correct answer                      |
-| `explanation`     | Explanation for the correct answer  |
+| `explanation`     | Explanation of correct answer       |
 | `difficulty`      | Difficulty level                    |
 | `topic`           | Topic tested                        |
-| `question_number` | Question order                      |
+| `question_number` | Order within quiz                   |
 | `quizzes`         | Linked quiz                         |
 | `responses`       | Linked submitted responses          |
 
+---
+
 ## Quizzes Table
 
-Groups questions into a quiz.
+Groups generated questions into a quiz session.
 
-| Field            | Purpose                    |
-| ---------------- | -------------------------- |
-| `record_id`      | Unique quiz ID             |
-| `created_at`     | Date/time created          |
-| `status`         | Quiz stage                 |
-| `source`         | How quiz was created       |
-| `quiz_title`     | Quiz name                  |
-| `topic`          | Quiz topic                 |
-| `difficulty`     | Overall difficulty         |
-| `question_type`  | Type of questions used     |
-| `question_count` | Number of questions        |
-| `questions`      | Linked questions           |
-| `document`       | Linked source document     |
-| `user_id`        | User taking the quiz       |
-| `generation_id`  | AI generation run ID       |
-| `started_at`     | Quiz start time            |
-| `completed_at`   | Quiz completion time       |
-| `responses`      | Linked responses           |
-| `performance`    | Linked performance summary |
+| Field            | Purpose                      |
+| ---------------- | ---------------------------- |
+| `record_id`      | Unique quiz identifier       |
+| `created_at`     | Creation timestamp           |
+| `status`         | Quiz workflow stage          |
+| `source`         | Quiz creation source         |
+| `quiz_title`     | Quiz name                    |
+| `topic`          | Quiz topic                   |
+| `difficulty`     | Overall quiz difficulty      |
+| `question_type`  | Included question type       |
+| `question_count` | Total number of questions    |
+| `questions`      | Linked questions             |
+| `document`       | Linked source document       |
+| `user_id`        | User taking the quiz         |
+| `generation_id`  | AI generation run identifier |
+| `started_at`     | Quiz start time              |
+| `completed_at`   | Quiz completion time         |
+| `responses`      | Linked submitted responses   |
+| `performance`    | Linked performance summary   |
+
+---
 
 ## Responses Table
 
-Stores the user’s submitted quiz answers.
+Stores submitted quiz answers.
 
-| Field                        | Purpose                          |
-| ---------------------------- | -------------------------------- |
-| `record_id`                  | Unique response ID               |
-| `created_at`                 | Date/time created                |
-| `status`                     | Response stage                   |
-| `source`                     | Submission source                |
-| `quiz`                       | Linked quiz                      |
-| `performance`                | Linked performance record        |
-| `user_id`                    | User who submitted answers       |
-| `submitted_1`–`submitted_10` | User answers for each question   |
-| `correct`                    | Whether the response was correct |
-| `feedback`                   | Feedback on answers              |
-| `response_type`              | Type of response                 |
-| `submitted_at`               | Time submitted                   |
-| `graded_at`                  | Time graded                      |
-| `score_awarded`              | Points awarded                   |
-| `missed_topic`               | Topic missed                     |
-| `created_by`                 | Person who created the record    |
+| Field                                | Purpose                      |
+| ------------------------------------ | ---------------------------- |
+| `record_id`                          | Unique response identifier   |
+| `created_at`                         | Creation timestamp           |
+| `status`                             | Response workflow stage      |
+| `source`                             | Submission origin            |
+| `quiz`                               | Linked quiz                  |
+| `performance`                        | Linked performance record    |
+| `user_id`                            | User identifier              |
+| `submitted_1` through `submitted_10` | Submitted answers            |
+| `correct`                            | Whether answers were correct |
+| `feedback`                           | Feedback on submission       |
+| `response_type`                      | Type of response             |
+| `submitted_at`                       | Submission timestamp         |
+| `graded_at`                          | Grading timestamp            |
+| `score_awarded`                      | Points earned                |
+| `missed_topic`                       | Topic answered incorrectly   |
+| `created_by`                         | Record creator               |
+
+---
 
 ## Performance Table
 
-Stores final quiz results and feedback.
+Stores final quiz performance summaries.
 
-| Field              | Purpose                             |
-| ------------------ | ----------------------------------- |
-| `record_id`        | Unique performance ID               |
-| `created_at`       | Date/time created                   |
-| `status`           | Performance record stage            |
-| `source`           | Where performance data came from    |
-| `quiz`             | Linked quiz                         |
-| `responses`        | Linked responses                    |
-| `user_id`          | User receiving results              |
-| `attempt_id`       | Tracks multiple attempts            |
-| `total_questions`  | Total questions                     |
-| `correct_count`    | Number correct                      |
-| `incorrect_count`  | Number incorrect                    |
-| `raw_score`        | Total points earned                 |
-| `score_percent`    | Final percentage score              |
-| `weak_topics`      | Topics needing improvement          |
-| `overall_feedback` | AI-generated performance feedback   |
-| `confidence_score` | AI confidence in the grading output |
+| Field              | Purpose                       |
+| ------------------ | ----------------------------- |
+| `record_id`        | Unique performance identifier |
+| `created_at`       | Creation timestamp            |
+| `status`           | Workflow stage                |
+| `source`           | Record origin                 |
+| `quiz`             | Linked quiz                   |
+| `responses`        | Linked responses              |
+| `user_id`          | User identifier               |
+| `attempt_id`       | Attempt tracking              |
+| `total_questions`  | Total questions               |
+| `correct_count`    | Correct answers               |
+| `incorrect_count`  | Incorrect answers             |
+| `raw_score`        | Total score                   |
+| `score_percent`    | Percentage score              |
+| `weak_topics`      | Areas needing improvement     |
+| `overall_feedback` | AI-generated summary feedback |
+| `confidence_score` | AI confidence metric          |
+
+---
 
 ## Status Standards
 
-Status values should stay lowercase and consistent across workflows.
+Approved workflow status values:
 
-Recommended values:
+* `uploaded`
+* `extracting`
+* `cleaned`
+* `chunked`
+* `ready`
+* `generating`
+* `generated`
+* `submitted`
+* `graded`
+* `complete`
+* `error`
 
-text
-uploaded
-extracting
-cleaned
-chunked
-ready
-generating
-generated
-submitted
-graded
-complete
-error
-
+---
 
 ## Relationship Standards
 
-The main record relationships are:
+Primary Airtable relationships:
 
-text
-Documents → Questions
-Documents → Quizzes
-Questions → Quizzes
-Quizzes → Responses
-Responses → Performance
-Quizzes → Performance
+* Documents → Questions
+* Documents → Quizzes
+* Questions → Quizzes
+* Quizzes → Responses
+* Responses → Performance
+* Quizzes → Performance
+
+---
 
 ## Workflow Rule
 
-Each workflow should:
+Every workflow should:
 
-1. Read records with the correct `status`
-2. Process only those records
-3. Write results to the correct fields
-4. Update the `status`
-5. Stop or mark `error` if processing fails
+1. Read records based on `status`
+2. Process only matching records
+3. Write output to designated fields
+4. Update the record `status`
+5. Stop and mark `error` if processing fails
 
+---
 
-
+This version will paste into GitHub perfectly as a normal markdown file.
