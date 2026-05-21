@@ -15,8 +15,8 @@ If a user uploads a PNG, JPG, or other image-based file instead of a supported P
 - the workflow reaches the **Extract File From Binary** stage
 - extraction fails because the file does not contain valid text content in the expected format
 - the workflow stops immediately
-- no cleaned text is generated
-- no chunking occurs
+- no cleaned text is generated or populates in the Airtable
+- no chunking occurs in the Airtable
 - no AI quiz generation is triggered
 - no quiz records are created
 
