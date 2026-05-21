@@ -1,4 +1,4 @@
-Got you — the issue is I wrapped parts in code fences inside the markdown, which GitHub renders as visible blocks instead of normal markdown structure. Here’s the **clean copy-paste-ready `data-standards.md`** exactly as it should go into GitHub:
+
 
 # Data Standards
 
@@ -215,4 +215,3 @@ Every workflow should:
 
 ---
 
-This version will paste into GitHub perfectly as a normal markdown file.
