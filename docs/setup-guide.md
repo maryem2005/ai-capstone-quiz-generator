@@ -45,13 +45,12 @@ Before you begin, make sure you have accounts created for the following tools:
 | correct_answer | Single Line Text |
 | for options a-d | Single Line Text |
 | difficulty | Single Select: `easy`, `medium`, `hard` |
-| answer | Long Text |
+| submitted_answer1-10 | Long Text |
 | explanation | Long Text |
 | topic | Single Line Text |
 | quizzes | Link to Quizzes |
 | question_number | Number |
 | reponses | Link to responses |
-| confidence_score | number |
 
 *(Repeat for quizzes, responses, and performance tables — see `/docs/data-standards.md` for full field lists)*
 
