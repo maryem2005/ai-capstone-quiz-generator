@@ -1,6 +1,6 @@
 # Checkpoint 3: System Redesign & Recovery
 
-# Post-Checkpoint 2: System Breakdown
+Post-Checkpoint 2: System Breakdown
 
 After Checkpoint 2, significant architectural weaknesses became visible.
 
