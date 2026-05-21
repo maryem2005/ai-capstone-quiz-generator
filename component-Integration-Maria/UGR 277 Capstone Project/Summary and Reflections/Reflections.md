@@ -283,3 +283,19 @@ If one component stalled:
 This became a major project management lesson.
 
 Future implementations would benefit from earlier integration testing and more modular ownership boundaries.
+---
+# Future Improvements
+
+As this project was developed within the time constraints of an academic capstone deadline, our primary focus was delivering a fully functional end-to-end system rather than optimizing every aspect for production-level deployment. While the core workflow is complete and operational, several areas present strong opportunities for future enhancement.
+
+Potential future improvements include:
+
+- migrating the user interface from Airtable to a more flexible, scalable, and user-friendly front-end platform
+- adding OCR support for scanned or image-based PDFs
+- implementing adaptive quiz difficulty based on user performance
+- enabling quiz history tracking for repeat study sessions
+- expanding performance analytics and long-term learning insights
+- improving dashboard visualizations for educators or administrative users
+- adding multi-user authentication and account management
+- supporting downloadable quiz reports and study summaries
+- strengthening AI validation and quality assurance for generated questions
