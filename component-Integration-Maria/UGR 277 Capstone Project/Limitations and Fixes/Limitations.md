@@ -56,8 +56,6 @@ Because of this, the final version required manual execution for some workflows.
 
 This was a platform limitation rather than a logic failure in the project.
 
-[Insert screenshot of n8n execution limit/paywall issue here]
-
 ---
 
 ## 5. Flowise Endpoint Sensitivity
