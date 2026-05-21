@@ -81,36 +81,27 @@ Explore each major project component:
 - Prepared chunked content for question generation workflows
 
 ---
+## Team Member Profiles
 
-## Project Structure
+<p align="center">
+  <img src="./Showcase/maria-profile.png" alt="Maria Shirin" width="220">
+  <img src="./Showcase/maryem-profile.png" alt="Maryem Elgebaly" width="220">
+  <img src="./Showcase/ryan-profile.png" alt="Ryan Maca" width="220">
+</p>
 
-```text
-UGR277-capstone/
-│
-├── README.md
-│
-├── showcase/
-│   ├── architecture-diagram.png
-│   ├── dashboard-documents.png
-│   ├── dashboard-questions-quizzes.png
-│   └── dashboard-performance.png
-│
-├── component-Integration-Maria/
-│   ├── README.md
-│   ├── Checkpoint 2 audit.md
-│
-├── component-Question-Generator-Maryem/
-│   ├── README.md
-│   ├── ai-review-output.md
-│
-├── componet-Data-Ingestion-Ryan/
-│   ├── README.md
-│
-├── docs/
-│
-└── .github/
-```
+<p align="center">
+  <a href="https://github.com/MarialsCoding"><strong>Maria Shirin</strong></a>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  <a href="https://github.com/maryem2005"><strong>Maryem Elgebaly</strong></a>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  <a href="https://github.com/RyanMaca01"><strong>Ryan Maca</strong></a>
+</p>
 
+<p align="center">
+  Integration / Workflow Orchestration &nbsp;&nbsp;&nbsp;
+  AI Question Generation &nbsp;&nbsp;&nbsp;
+  Data Ingestion
+</p>
 ---
 
 ## Project Summary
