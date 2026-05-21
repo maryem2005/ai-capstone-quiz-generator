@@ -164,7 +164,7 @@ Status values should stay lowercase and consistent across workflows.
 
 Recommended values:
 
-```text
+text
 uploaded
 extracting
 cleaned
@@ -176,20 +176,19 @@ submitted
 graded
 complete
 error
-```
+
 
 ## Relationship Standards
 
 The main record relationships are:
 
-```text
+text
 Documents → Questions
 Documents → Quizzes
 Questions → Quizzes
 Quizzes → Responses
 Responses → Performance
 Quizzes → Performance
-```
 
 ## Workflow Rule
 
@@ -201,7 +200,5 @@ Each workflow should:
 4. Update the `status`
 5. Stop or mark `error` if processing fails
 
-```
 
-This is ready to paste directly into GitHub.
-```
+
