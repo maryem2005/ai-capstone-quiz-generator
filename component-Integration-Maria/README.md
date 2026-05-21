@@ -111,3 +111,5 @@ Providing 30+ realistic records in Week 4 let all three other components develop
 | Airtable | Schema, test data, dashboard views, linked records |
 | GitHub + GitHub Pages | Repo structure, portfolio page, documentation |
 | draw.io | Architecture diagram |
+| Flowise | AI workflow configuration, prompt troubleshooting and testing, and output validation |
+| n8n | automation orchestration, debugging, integration auditing, and end to end workflow testing |
