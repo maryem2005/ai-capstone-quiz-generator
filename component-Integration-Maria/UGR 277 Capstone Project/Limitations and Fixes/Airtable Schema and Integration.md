@@ -18,6 +18,54 @@ Each table was built around four shared system fields:
 - `status`
 
 These fields were included to keep records consistent, traceable, and easier to debug across the full workflow.
+# Design Decision: Confidence Score Interpretation
+
+One implementation decision our team had to make involved how to represent the system’s confidence score.
+
+The original project requirements referenced including a confidence score, but did not explicitly define:
+
+- what the confidence score should measure
+- how it should be calculated
+- whether it should represent model certainty, grading certainty, or another evaluation metric
+- whether it should be expressed as a probability (0–1) or a percentage (0–100)
+
+Because this was not formally specified, our team made an implementation judgment based on what made the most practical sense for our workflow.
+
+We defined the confidence score as:
+
+> **the AI grading system’s level of certainty in the accuracy of its grading decision for a student’s submitted quiz responses.**
+
+Rather than representing this as a decimal probability between 0 and 1, we intentionally chose a **0–100 percentage scale**.
+
+Example interpretation:
+
+- **95** → the grading system is highly confident in its evaluation
+- **72** → moderate confidence in grading accuracy
+- **40** → lower confidence, suggesting the response may require closer review
+
+We chose this approach because the grading output is tied directly to student performance assessment, and a percentage-based scale was significantly more intuitive and easier for end users to interpret than raw probability values.
+
+For example:
+
+- `0.87 confidence` may be technically standard in machine learning contexts
+- `87% confidence` is immediately understandable to most users
+
+This was ultimately a usability-driven design decision rather than a mathematically mandated implementation.
+
+## Reflection
+
+This also highlighted an important systems design lesson:
+
+Project requirements sometimes define *what* must exist without fully defining *how* it should behave.
+
+In those situations, implementation teams must make reasonable architectural decisions that balance:
+
+- technical correctness
+- usability
+- interpretability
+- implementation practicality
+
+Our confidence score design reflects that type of engineering judgment.
 
 ---
 
