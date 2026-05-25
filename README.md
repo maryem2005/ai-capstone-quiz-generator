@@ -6,11 +6,11 @@ An end-to-end educational AI system that transforms uploaded study materials int
 
 ## Demo Video
 
-<p align="center">
-  <a href="https://youtu.be/MMyusKu4cQ8?si=wFM0bkBQcZDNGmra">
-    <img src="https://img.youtube.com/vi/MMyusKu4cQ8/maxresdefault.jpg" alt="Watch Project Demo" width="850">
-  </a>
-</p>
+[![Watch the Demo](https://img.youtube.com/vi/ys4_9Tn76Bs/maxresdefault.jpg)](https://youtu.be/ys4_9Tn76Bs)
+
+Click the image above to watch the full demo.
+
+
 
 <p align="center">
   <strong>Click above to watch the full project walkthrough</strong>
